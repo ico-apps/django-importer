@@ -1,0 +1,31 @@
+{% extends "ico_monitoring/base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">{% trans 'Created' %}</th>
+            <th scope="col">{% trans 'File' %}</th>
+            <th scope="col">{% trans 'User' %}</th>
+            <th scope="col">{% trans 'Status' %}</th>
+            <th scope="col">{% trans 'Details' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in object_list %}
+        <tr>
+            <td scope="row">{{ log.created_at }}</td>
+            <td>{{ log.input_file }}</td>
+            <td>{{ log.user }}</td>
+            <td>{{ log.status }}</td>
+            <td><a class="nav-link active" href="{% url 'djimporter:importlog-detail' log.id %}">{{ log.id }}</td>
+        </tr>
+        {% empty %}
+        <tr colspan="">No logs yet.</tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include "ico_monitoring/components/nav_pagination.html" %}
+{% endblock %}
