@@ -10,9 +10,6 @@ from django.db.models import Model as djangoModel
 from django.db.models.query import QuerySet
 from django.db.models import TimeField as django_TimeField
 
-# TODO(@slamora) remove dependency with ico_monitoring
-from ico_monitoring.models import Membership
-from ico_monitoring.thesaurus.models import SpeciesTaxonomy
 
 class FieldError(ValueError):
     pass
@@ -109,26 +106,6 @@ class CharField(Field):
             return value.strip()
         else:
             return value
-
-
-class SpeciesIdField(Field):
-    field_name = "SpeciesIdField"
-
-    def __init__(self, *args, **kwargs):
-        super(SpeciesIdField, self).__init__(*args, **kwargs)
-        self.code_ref = kwargs.get('code_ref')
-
-    def to_python(self, line):
-        if self.code_ref:
-            return SpeciesTaxonomy.objects.get(
-                code=line['species_code'],
-                species_thesaurus__code_ref=self.code_ref
-            ).species_id
-
-        return SpeciesTaxonomy.objects.get(
-            code=line['origin_species_code'],
-            species_thesaurus__code_ref=line['origin_id_ref']
-        ).species_id
 
 
 class FloatField(Field):
@@ -444,30 +421,6 @@ class TaskField(Field):
             elif not self.required and not value:
                 self.parameters = ()
 
-
-        return self
-
-
-class MembershipField(Field):
-    """
-    This field is used for save an task than save a membership from csv users
-
-    """
-
-    field_name = "MembershipField"
-
-    def task(self, user):
-        self.parameters.update({'user': user})
-        Membership.objects.create(**self.parameters)
-
-    def to_python(self, column_name, line_number, monitoringscheme, value):
-        self.k = column_name
-        self.line_number= line_number
-        types_memberships = [x[0] for x in Membership.TYPES]
-        if not value in types_memberships:
-            raise FieldValueMissing(self.field_name)
-
-        self.parameters = {'monitoringscheme': monitoringscheme, 'role': value}
 
         return self
 
