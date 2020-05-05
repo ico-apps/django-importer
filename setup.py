@@ -21,6 +21,7 @@ setup(
     # TODO license = 'XXX License',
     packages=find_packages(),
     include_package_data=True,
+    install_requires=["django-background-tasks==1.2.5"],
     zip_safe=False,
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
