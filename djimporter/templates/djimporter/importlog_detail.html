@@ -55,17 +55,12 @@
                     </thead>
                     <tbody>
                       {% for error in object.list_errors %}
-                        {% for k, v in error.error.items %}
+                        {% for field, details in error.error.items %}
                       <tr>
                         <td class="align-middle">{{ forloop.parentloop.counter }}</td>
                         <td class="align-middle">{{ error.line }}</td>
-                        <td class="align-middle">{{ k }}</td>
-                        <td>
-                        {% for lk, lv in v.items %}
-                          {{lk}}: {{ lv }}
-                          <br />
-                        {% endfor %}
-                        </td>
+                        <td class="align-middle">{{ field }}</td>
+                        <td>{{ details }}</td>
                       </tr>
                         {% endfor %}
                       {% endfor %}
