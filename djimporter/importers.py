@@ -33,7 +33,7 @@ class CsvModel(object):
 
         self.fields = self.get_fields()
         self.mapping = self.get_mapping()
-        self.delimiter = self.Meta.delimiter or ';'
+        self.delimiter = getattr(self.Meta, 'delimiter', ';')
         self.dbModel = self.Meta.dbModel
         self.post_save = hasattr(self.Meta, 'post_save')
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
@@ -264,6 +264,8 @@ class ReadRow(object):
                 # handle the error here because we know which is the
                 # invalid field and we want to provide this info to
                 # the user.
+                # TODO(@slamora) field.name raises AttributeError
+                field.name = 'XXX'
                 self.add_error(self.line_number, field.name, str(error))
                 raise
 
@@ -308,6 +310,10 @@ class ReadRow(object):
     def exec_f(self, f):
         try:
            f(self)
+        # TODO(@slamora) check which exceptions should be caught
+        #   I believe that only none or only ValidationError
+        #   handling other execeptions will mask code problems
+        #   e.g. missing required context
         except (ValidationError, ValueError, KeyError, ObjectDoesNotExist) as error:
             self.add_error(self.line_number, f.__name__, str(error))
 
