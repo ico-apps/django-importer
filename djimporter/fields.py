@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 
 from django.contrib.gis.geos import GEOSGeometry
-from django.core.exceptions import ObjectDoesNotExist, FieldError as dj_FieldError
+from django.core.exceptions import ObjectDoesNotExist, FieldError as dj_FieldError, ValidationError
 from django.db.models import Manager
 from django.db.models import Model as djangoModel
 from django.db.models.query import QuerySet
@@ -150,8 +150,10 @@ class ForeignKey(Field):
     def to_python(self, value):
         try:
             return self.model.objects.get(**{self.pk: value})
-        except ObjectDoesNotExist as e:
-            raise ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
+        except ObjectDoesNotExist:
+            msg = "No match found for %(model)s with value %(value)s"
+            params = {'model': self.model.__name__, 'value': value}
+            raise ValidationError(msg, params=params)
 
 
 class SlugRelatedField(Field):
@@ -200,7 +202,9 @@ class SlugRelatedField(Field):
         try:
             return self.get(value)
         except ObjectDoesNotExist:
-            raise ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
+            msg = "No match found for %(model)s with value %(value)s"
+            params = {'model': self.model.__name__, 'value': value}
+            raise ValidationError(msg, params=params)
         except (TypeError, ValueError):
             raise FieldError('invalid')
 
