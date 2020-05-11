@@ -247,26 +247,24 @@ class ReadRow(object):
         if not self.line: return
         if self.not_create_model(): return
 
-        for k_csv, field in self.fields.items():
-            k_model = self.mapping[k_csv]
+        for csv_fieldname, field in self.fields.items():
+            model_fieldname = self.mapping[csv_fieldname]
             try:
                 if hasattr(field, 'in_csv') and not field.in_csv:
-                    data[k_model] = field.to_python()
+                    data[model_fieldname] = field.to_python()
                     continue
 
-                if k_csv in self.context:
-                    data[k_model] = self.context[k_csv]
+                if csv_fieldname in self.context:
+                    data[model_fieldname] = self.context[csv_fieldname]
                     continue
 
-                cell = self.line[k_csv]
-                data[k_model] = field.to_python(cell)
+                cell = self.line[csv_fieldname]
+                data[model_fieldname] = field.to_python(cell)
             except ValidationError as error:
                 # handle the error here because we know which is the
                 # invalid field and we want to provide this info to
                 # the user.
-                # TODO(@slamora) field.name raises AttributeError
-                field.name = 'XXX'
-                self.add_error(self.line_number, field.name, str(error))
+                self.add_error(self.line_number, csv_fieldname, str(error))
                 raise
 
         self.data = data
