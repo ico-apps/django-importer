@@ -39,6 +39,9 @@ class ListGeoException(Exception):
 class Field(object):
     position = 0
     field_name = "Field"
+    # Are null values allowed?
+    # If null value is allowed, this field could be empty in the row
+    null = False
 
     def __init__(self, *args, **kwargs):
         self.in_csv = kwargs.pop('in_csv', True)
@@ -50,10 +53,10 @@ class Field(object):
             Field.position += 1
         if 'match' in kwargs:
             self.match = kwargs.pop('match')
+
         if 'null' in kwargs:
-            # if there are null=True
-            # this mean that is not mandatory that exist this field in the row
             self.null = kwargs.pop('null')
+
         if 'default' in kwargs:
             # with this value we can overwrite all values in csv
             # for this field. It is usefull when we can a default value
@@ -165,6 +168,7 @@ class SlugRelatedField(Field):
     queryset = None
 
     def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
         self.args = args
         self.kwargs = kwargs
         self.queryset = kwargs.pop('queryset', self.queryset)
@@ -179,8 +183,6 @@ class SlugRelatedField(Field):
             'override `get_queryset`, or set read_only=`True`.'
         )
         self.model = self.queryset.model
-
-        # super().__init__(**kwargs)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -199,14 +201,23 @@ class SlugRelatedField(Field):
         return self.get_queryset().get(**{self.slug_field: value.strip()})
 
     def to_python(self, value):
+        # handle empty values depending of this field is mandatory
+        if not value:
+            if self.null:
+                return None
+            else:
+                import pdb; pdb.set_trace()
+                msg = 'This field cannot be empty'
+                raise ValidationError(msg, code='required')
+
         try:
             return self.get(value)
         except ObjectDoesNotExist:
             msg = "No match found for %(model)s with value %(value)s"
             params = {'model': self.model.__name__, 'value': value}
             raise ValidationError(msg, params=params)
-        except (TypeError, ValueError):
-            raise FieldError('invalid')
+        except (TypeError, ValueError) as e:
+            raise ValidationError(e, code='invalid')
 
 
 class RelatedFromUniquesField(SlugRelatedField):
