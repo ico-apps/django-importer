@@ -119,11 +119,11 @@ class FloatField(Field):
 
 
 class DateField(Field):
+    DEFAULT_DATE_FORMAT = '%Y-%m-%d'
     field_name = "Date"
 
     def __init__(self, *args, **kwargs):
-        strptime = '%Y-%m-%d %H:%M:%S'
-        self.strptime = kwargs.pop('strptime', strptime)
+        self.strptime = kwargs.pop('strptime', self.DEFAULT_DATE_FORMAT)
 
     def to_python(self, value):
         if value:
