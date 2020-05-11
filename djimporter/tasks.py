@@ -9,9 +9,10 @@ from .models import ImportLog
 
 
 @background(schedule=0)
-def run_importer(csv_model, csv_filepath, log_id):
+def run_importer(csv_model, csv_filepath, log_id, context={}):
     """
     csv_model: should be string dotted_path e.g. 'djimporter.FooCsv'
+    context: should be serializable
     """
     importer_class = import_string(csv_model)
     # mark task as running
@@ -20,7 +21,7 @@ def run_importer(csv_model, csv_filepath, log_id):
     log.save()
 
     # run importer
-    importer = importer_class(csv_filepath)
+    importer = importer_class(csv_filepath, context=context)
     importer.is_valid()
     importer.save()
 

@@ -47,7 +47,8 @@ class ImportFormView(FormView):
             name=importer_class.__name__,
         )
 
-        run_importer(dotted_path, csv_path, task_log.id)
+        context = self.get_importer_context()
+        run_importer(dotted_path, csv_path, task_log.id, context=context)
 
         return task_log
 
@@ -64,3 +65,6 @@ class ImportFormView(FormView):
         )
 
         return self.importer_class
+
+    def get_importer_context(self):
+        return {}
