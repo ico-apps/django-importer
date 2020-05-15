@@ -25,6 +25,7 @@ class AbstractBaseLog(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['-created_at']
 
     def list_errors(self):
         return json.loads(self.errors or "[]")
