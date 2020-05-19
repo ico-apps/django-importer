@@ -9,6 +9,7 @@ from django.db.models import Manager
 from django.db.models import Model as djangoModel
 from django.db.models.query import QuerySet
 from django.db.models import TimeField as django_TimeField
+from django.utils.translation import gettext_lazy as _
 
 
 class FieldError(ValueError):
@@ -36,7 +37,16 @@ class ListGeoException(Exception):
         Exception.__init__(self, message)
 
 
+MISSING_ERROR_MESSAGE = (
+    'ValidationError raised by `{class_name}`, but error key `{key}` does '
+    'not exist in the `error_messages` dictionary.'
+)
+
+
 class Field(object):
+    default_error_messages = {
+        'required': _('This field is required.'),
+    }
     position = 0
     field_name = "Field"
     # Are null values allowed?
@@ -62,6 +72,19 @@ class Field(object):
             # for this field. It is usefull when we can a default value
             # but we don't put one default value in the model
             self.has_default = self.to_python(kwargs.pop('default'))
+
+    def fail(self, key, **kwargs):
+        """
+        A helper method that simply raises a validation error.
+        """
+        try:
+            msg = self.error_messages[key]
+        except KeyError:
+            class_name = self.__class__.__name__
+            msg = MISSING_ERROR_MESSAGE.format(class_name=class_name, key=key)
+            raise AssertionError(msg)
+        message_string = msg.format(**kwargs)
+        raise ValidationError(message_string, code=key)
 
 
 class IntegerField(Field):
@@ -112,10 +135,21 @@ class CharField(Field):
 
 
 class FloatField(Field):
+    default_error_messages = {
+        'invalid': _('A valid number is required.'),
+    }
     field_name = "Float"
 
     def to_python(self, value):
-        return float(value)
+        # handle empty values depending of this field is nullable
+        if not value:
+            if self.null:
+                return None
+            self.fail('required')
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            self.fail('invalid')
 
 
 class DateField(Field):
@@ -201,14 +235,11 @@ class SlugRelatedField(Field):
         return self.get_queryset().get(**{self.slug_field: value.strip()})
 
     def to_python(self, value):
-        # handle empty values depending of this field is mandatory
+        # handle empty values depending of this field is nullable
         if not value:
             if self.null:
                 return None
-            else:
-                import pdb; pdb.set_trace()
-                msg = 'This field cannot be empty'
-                raise ValidationError(msg, code='required')
+            self.fail('required')
 
         try:
             return self.get(value)
