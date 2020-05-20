@@ -26,6 +26,12 @@ class ImportFormView(FormView):
     importer_class = None
 
     def form_valid(self, form):
+        """
+        After calling this method, valid form will be available on `self.form`
+        """
+        # store valid form to allow other methods access it
+        # e.g. get_importer_context
+        self.form = form
         task_log = self.create_import_task(form.files['upfile'])
         return redirect('djimporter:importlog-detail', pk=task_log.id)
 
