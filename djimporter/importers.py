@@ -312,7 +312,8 @@ class ReadRow(object):
         #   I believe that only none or only ValidationError
         #   handling other execeptions will mask code problems
         #   e.g. missing required context
-        except (ValidationError, ValueError, KeyError, ObjectDoesNotExist) as error:
+        except (ValidationError, ValueError, KeyError, ObjectDoesNotExist,
+            DatabaseError) as error:
             self.add_error(self.line_number, f.__name__, str(error))
 
     def pre_save(self):
