@@ -118,10 +118,14 @@ class CsvModel(object):
 
         self.validate_in_file()
         if self.errors:
-            del self.list_objs
+            if self.has_save:
+                # delete related objects created if there are errors
+                # while processing post_save operations
+                ids = [o.object.id for o in self.list_objs]
+                self.dbModel.objects.filter(id__in=ids).delete()
             return False
         else:
-            retunr True
+            return True
 
     def validate_header(self):
         if self.errors: return
