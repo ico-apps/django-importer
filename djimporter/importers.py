@@ -118,7 +118,10 @@ class CsvModel(object):
 
         self.validate_in_file()
         if self.errors:
-            return self.errors
+            del self.list_objs
+            return False
+        else:
+            retunr True
 
     def validate_header(self):
         if self.errors: return
