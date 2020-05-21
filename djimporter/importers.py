@@ -32,6 +32,7 @@ class CsvModel(object):
         self._meta = None
 
         self.fields = self.get_fields()
+        self.extra_fields = getattr(self.Meta, 'extra_fields', [])
         self.mapping = self.get_mapping()
         self.delimiter = getattr(self.Meta, 'delimiter', ';')
         self.dbModel = self.Meta.dbModel
@@ -40,10 +41,23 @@ class CsvModel(object):
         self.not_create_model = hasattr(self.Meta, 'create_model') and \
                 not self.Meta.create_model
 
+    def get_user_visible_fields(self):
+        head = self.extra_fields.copy()
+        for f in self.mapping.keys():
+            field = self.fields[f]
+            if hasattr(field, 'in_csv') and not field.in_csv:
+                continue
+
+            if f in self.context:
+                continue
+
+            head.append(f)
+
+        return head
 
     def get_fields(self):
         """
-        Only get the names than exist un the field
+        Only get the names than exist in the field
         if not exist names enough for build the object
         when the it try validate the object to do crash
         """
@@ -129,14 +143,7 @@ class CsvModel(object):
         if self.errors: return
 
         errors = {}
-        for f in self.mapping.keys():
-            field = self.fields[f]
-            if hasattr(field, 'in_csv') and not field.in_csv:
-                continue
-
-            if f in self.context:
-                continue
-
+        for f in self.get_user_visible_fields():
             if not f in self.csv_reader.fieldnames:
                 errors.update({f: _(self.get_dict_error()[f])})
 
