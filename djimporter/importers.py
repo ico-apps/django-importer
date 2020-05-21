@@ -109,7 +109,7 @@ class CsvModel(object):
             return self.dict_error
 
         msg = _("the head field '%s' not do match")
-        self.dict_error = {i: (msg % i) for i in self.mapping.keys()}
+        self.dict_error = {i: (msg % i) for i in self.get_user_visible_fields()}
         return self.dict_error
 
 
