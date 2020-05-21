@@ -22,12 +22,9 @@ def run_importer(csv_model, csv_filepath, log_id, context={}):
     log.save()
 
     # run importer
-    try:
-        importer = importer_class(csv_filepath, context=context)
-        importer.is_valid()
-        importer.save()
-    except (TransactionManagementError) as e:
-        importer.errors.append(e.args)
+    importer = importer_class(csv_filepath, context=context)
+    importer.is_valid()
+    importer.save()
 
     # update log with import result
     if importer.errors:
