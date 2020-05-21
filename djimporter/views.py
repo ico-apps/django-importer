@@ -25,6 +25,13 @@ class ImportFormView(FormView):
     form_class = CsvImportForm
     importer_class = None
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        importer_class = self.get_importer_class()
+        importer = importer_class('')
+        context['importer'] = importer
+        return context
+
     def form_valid(self, form):
         """
         After calling this method, valid form will be available on `self.form`
