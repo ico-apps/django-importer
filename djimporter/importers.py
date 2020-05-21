@@ -42,6 +42,10 @@ class CsvModel(object):
                 not self.Meta.create_model
 
     def get_user_visible_fields(self):
+        # extra fields is used to capture the names of the columns used in the pre_save and
+        # post_save methods each csvmodel. Is neccesary define in every Meta of csvmodel one list
+        # of this names if is used in pre_save or post_save
+        # This method get_user_visible_fields is used for validated the header of the file
         head = self.extra_fields.copy()
         for f in self.mapping.keys():
             field = self.fields[f]
