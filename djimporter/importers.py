@@ -109,7 +109,7 @@ class CsvModel(object):
         self.csv_reader = csv.DictReader(self.csv_file, delimiter=self.delimiter)
         self.validate_header()
         if self.errors:
-            return self
+            return False
 
         for line_number, line in enumerate(self.csv_reader, start=2):
             # line is a dictionary with the fields of csv head as key
@@ -124,11 +124,11 @@ class CsvModel(object):
                 ids = [o.object.id for o in self.list_objs]
                 self.dbModel.objects.filter(id__in=ids).delete()
             return False
-        else:
-            return True
+
+        return True
 
     def validate_header(self):
-        if self.errors: return
+        if self.errors: return False
 
         errors = {}
         for f in self.mapping.keys():
@@ -144,6 +144,8 @@ class CsvModel(object):
 
         if errors:
             self.add_error(1, 'header', errors)
+            return False
+        return True
 
 
     def save(self):
