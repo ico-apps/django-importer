@@ -22,6 +22,7 @@ class AbstractBaseLog(models.Model):
     errors = models.TextField(blank=True)
     num_rows = models.IntegerField(null=True)
     input_file = models.CharField(max_length=100)
+    header = models.TextField(blank=True)
 
     class Meta:
         abstract = True
@@ -29,6 +30,9 @@ class AbstractBaseLog(models.Model):
 
     def list_errors(self):
         return json.loads(self.errors or "[]")
+
+    def get_header(self):
+        return json.loads(self.header or "[]")
 
 
 class ImportLog(AbstractBaseLog):
