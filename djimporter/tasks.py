@@ -30,7 +30,6 @@ def run_importer(csv_model, csv_filepath, log_id, context={}):
     if importer.errors:
         log.status = ImportLog.FAILED
         log.errors = json.dumps(importer.errors)
-        log.header = json.dumps(importer.get_user_visible_fields())
     else:
         log.status = ImportLog.COMPLETED
         log.num_rows = len(importer.list_objs)
