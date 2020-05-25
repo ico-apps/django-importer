@@ -44,28 +44,28 @@
           <div class="row-fluid border border-dark rounded p-3 pt-5">
             <div class="col-12">
               <div>
-                  <h3>Errors for <strong>{{ object.input_file }}</strong></h3>
-                  <table class="table table-hover table-striped">
-                    <caption>Errors found in the validated file</caption>
-                    <thead>
-                      <th scope="col">#</th>
-                      <th scope="col">line</th>
-                      <th scope="col">field</th>
-                      <th scope="col">error</th>
-                    </thead>
-                    <tbody>
-                      {% for error in object.list_errors %}
-                        {% for field, details in error.error.items %}
-                      <tr>
-                        <td class="align-middle">{{ forloop.parentloop.counter }}</td>
-                        <td class="align-middle">{{ error.line }}</td>
-                        <td class="align-middle">{{ field }}</td>
-                        <td>{{ details }}</td>
-                      </tr>
-                        {% endfor %}
+                <h3>Errors for <strong>{{ object.input_file }}</strong></h3>
+                <table class="table table-hover table-striped">
+                  <caption>Errors found in the validated file</caption>
+                  <thead>
+                    <th scope="col">#</th>
+                    <th scope="col">line</th>
+                    <th scope="col">field</th>
+                    <th scope="col">error</th>
+                  </thead>
+                  <tbody>
+                    {% for error in object.list_errors %}
+                      {% for field, details in error.error.items %}
+                    <tr>
+                      <td class="align-middle">{{ forloop.parentloop.counter }}</td>
+                      <td class="align-middle">{{ error.line }}</td>
+                      <td class="align-middle">{{ field }}</td>
+                      <td>{{ details }}</td>
+                    </tr>
                       {% endfor %}
-                    </tbody>
-                  </table>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
             </div>
             {% endif %}

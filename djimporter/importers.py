@@ -42,6 +42,10 @@ class CsvModel(object):
                 not self.Meta.create_model
 
     def get_user_visible_fields(self):
+        # extra fields is used to capture the names of the columns used in the pre_save and
+        # post_save methods each csvmodel. Is neccesary define in every Meta of csvmodel one list
+        # of this names if is used in pre_save or post_save
+        # This method get_user_visible_fields is used for validated the header of the file
         head = self.extra_fields.copy()
         for f in self.mapping.keys():
             field = self.fields[f]
@@ -105,7 +109,7 @@ class CsvModel(object):
             return self.dict_error
 
         msg = _("the head field '%s' not do match")
-        self.dict_error = {i: (msg % i) for i in self.mapping.keys()}
+        self.dict_error = {i: (msg % i) for i in self.get_user_visible_fields()}
         return self.dict_error
 
 
@@ -123,7 +127,7 @@ class CsvModel(object):
         self.csv_reader = csv.DictReader(self.csv_file, delimiter=self.delimiter)
         self.validate_header()
         if self.errors:
-            return self
+            return False
 
         for line_number, line in enumerate(self.csv_reader, start=2):
             # line is a dictionary with the fields of csv head as key
@@ -137,10 +141,12 @@ class CsvModel(object):
                 # while processing post_save operations
                 ids = [o.object.id for o in self.list_objs]
                 self.dbModel.objects.filter(id__in=ids).delete()
-            return self.errors
+            return False
+
+        return True
 
     def validate_header(self):
-        if self.errors: return
+        if self.errors: return False
 
         errors = {}
         for f in self.get_user_visible_fields():
@@ -149,6 +155,8 @@ class CsvModel(object):
 
         if errors:
             self.add_error(1, 'header', errors)
+            return False
+        return True
 
 
     def save(self):
@@ -324,7 +332,8 @@ class ReadRow(object):
         #   I believe that only none or only ValidationError
         #   handling other execeptions will mask code problems
         #   e.g. missing required context
-        except (ValidationError, ValueError, KeyError, ObjectDoesNotExist) as error:
+        except (ValidationError, ValueError, KeyError, ObjectDoesNotExist,
+            DatabaseError) as error:
             self.add_error(self.line_number, f.__name__, str(error))
 
     def pre_save(self):
