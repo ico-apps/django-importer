@@ -8,9 +8,11 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
+from . import get_importlog_model
 from .forms import CsvImportForm
-from .models import ImportLog
 from .tasks import run_importer
+
+ImportLog = get_importlog_model()
 
 
 class ListImportsView(ListView):

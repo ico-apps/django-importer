@@ -1,6 +1,10 @@
 """
 Package metadata definition.
 """
+from django.apps import apps as django_apps
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+
 
 VERSION = (0, 0, 1, 'alpha', 0)
 
@@ -28,3 +32,18 @@ def get_version():
         sub = mapping[VERSION[3]] + str(VERSION[4])
 
     return str(main + sub)
+
+
+def get_importlog_model():
+    """
+    Return the ImportLog model that is active in this project.
+    """
+    importlog_class = getattr(settings, 'IMPORT_LOG_MODEL', 'djimporter.ImportLog')
+    try:
+        return django_apps.get_model(importlog_class, require_ready=False)
+    except ValueError:
+        raise ImproperlyConfigured("IMPORT_LOG_MODEL must be of the form 'app_label.model_name'")
+    except LookupError:
+        raise ImproperlyConfigured(
+            "IMPORT_LOG_MODEL refers to model '%s' that has not been installed" % settings.IMPORT_LOG_MODEL
+        )

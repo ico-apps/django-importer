@@ -6,7 +6,9 @@ from django.db.transaction import TransactionManagementError
 from django.db import transaction
 from background_task import background
 
-from .models import ImportLog
+from . import get_importlog_model
+
+ImportLog = get_importlog_model()
 
 
 @background(schedule=0)
