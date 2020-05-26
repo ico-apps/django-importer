@@ -52,7 +52,7 @@ class ImportFormView(FormView):
 
         task_log = ImportLog.objects.create(
             status=ImportLog.CREATED,
-            user=self.request.user,
+            user=str(self.request.user),
             input_file=csv_file.name,
         )
 
