@@ -23,3 +23,11 @@ INSTALLED_APPS = [
     'djimporter',
 ]
 ```
+
+## Configuration
+django-importer supports using a custom model for ImportLogs. It can be configured via project settings.py:
+```
+IMPORT_LOG_MODEL = 'yourapp.CustomImportLog'
+```
+
+The recommeded way is to create a `CustomImportLog` model that extends abstract model `AbstractBaseLog`.
