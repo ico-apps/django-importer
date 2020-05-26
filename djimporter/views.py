@@ -1,9 +1,11 @@
 import os
 
 from django.conf import settings
-from django.core.files.storage import default_storage
 from django.core.exceptions import ImproperlyConfigured
+from django.core.files.storage import default_storage
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
@@ -41,8 +43,9 @@ class ImportFormView(FormView):
         # store valid form to allow other methods access it
         # e.g. get_importer_context
         self.form = form
-        task_log = self.create_import_task(form.files['upfile'])
-        return redirect('djimporter:importlog-detail', pk=task_log.id)
+        self.task_log = self.create_import_task(form.files['upfile'])
+
+        return HttpResponseRedirect(self.get_success_url())
 
     def create_import_task(self, csv_file):
         importer_class = self.get_importer_class()
@@ -83,3 +86,6 @@ class ImportFormView(FormView):
 
     def get_importer_context(self):
         return {}
+
+    def get_success_url(self):
+        return reverse('djimporter:importlog-detail', pk=self.task_log.id)
