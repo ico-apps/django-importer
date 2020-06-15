@@ -20,9 +20,9 @@ class MetaFieldException(Exception):
 
 class CsvModel(object):
 
-    def __init__(self, *args, context={}):
-        self.file = args[0]
-        self.context = context
+    def __init__(self, csvfile, context=None):
+        self.file = csvfile
+        self.context = context or {}
         self.Meta.context = context
 
         self.errors = []
