@@ -43,7 +43,7 @@ MISSING_ERROR_MESSAGE = (
 )
 
 
-class Field(object):
+class Field:
     default_error_messages = {
         'required': _('This field is required.'),
     }
@@ -72,6 +72,14 @@ class Field(object):
             # for this field. It is usefull when we can a default value
             # but we don't put one default value in the model
             self.has_default = self.to_python(kwargs.pop('default'))
+
+        # Collect default error message from self and parent classes
+        error_messages = kwargs.get('error_messages')
+        messages = {}
+        for cls in reversed(self.__class__.__mro__):
+            messages.update(getattr(cls, 'default_error_messages', {}))
+        messages.update(error_messages or {})
+        self.error_messages = messages
 
     def fail(self, key, **kwargs):
         """
