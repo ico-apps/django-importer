@@ -1,0 +1,3 @@
+# Pytest for running the tests.
+pytest
+pytest-django
