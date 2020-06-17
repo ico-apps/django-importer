@@ -1,10 +1,8 @@
 import json
-import time
 
 from datetime import datetime
 
-from django.contrib.gis.geos import GEOSGeometry
-from django.core.exceptions import ObjectDoesNotExist, FieldError as dj_FieldError, ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Manager
 from django.db.models import Model as djangoModel
 from django.db.models.query import QuerySet
