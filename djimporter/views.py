@@ -88,4 +88,4 @@ class ImportFormView(FormView):
         return {}
 
     def get_success_url(self):
-        return reverse('djimporter:importlog-detail', pk=self.task_log.id)
+        return reverse('djimporter:importlog-detail', kwargs={'pk': self.task_log.id})
