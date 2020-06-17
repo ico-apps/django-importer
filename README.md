@@ -31,3 +31,21 @@ IMPORT_LOG_MODEL = 'yourapp.CustomImportLog'
 ```
 
 The recommeded way is to create a `CustomImportLog` model that extends abstract model `AbstractBaseLog`.
+
+
+## Run tests
+Only 3 steps are required to run the test suite based on [pytest](https://docs.pytest.org/):
+```
+# 1. clone the repository
+git clone https://github.com/ico-apps/django-importer.git
+
+# 2. prepare virtualenv and install dependencies
+cd django-importer
+python3 -m virtualenv -p /usr/bin/python3 env
+source env/bin/activate
+pip install -r requirements.txt
+pip install -r tests/requirements.txt
+
+# 3. run test suite!
+pytest
+```

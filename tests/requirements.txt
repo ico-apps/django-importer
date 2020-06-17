@@ -1,0 +1,4 @@
+# Pytest for running the tests.
+flake8
+pytest
+pytest-django
