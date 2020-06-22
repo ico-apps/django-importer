@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, DeleteView
 from django.views.generic.list import ListView
 
 from . import get_importlog_model
@@ -22,6 +22,10 @@ class ListImportsView(ListView):
 
 
 class ImportDetailView(DetailView):
+    model = ImportLog
+
+
+class ImportDeleteView(DeleteView):
     model = ImportLog
 
 
