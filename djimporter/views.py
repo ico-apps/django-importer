@@ -1,10 +1,8 @@
 import os
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, DeleteView
@@ -27,6 +25,9 @@ class ImportDetailView(DetailView):
 
 class ImportDeleteView(DeleteView):
     model = ImportLog
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse('djimporter:importlog-list')
 
 
 class ImportFormView(FormView):
