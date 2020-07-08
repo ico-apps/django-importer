@@ -25,6 +25,8 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install -r tests/requirements.txt
+        pip install -e .
+        cp djimporter/templates/djimporter/base.example.html djimporter/templates/djimporter/base.html
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

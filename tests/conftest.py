@@ -54,6 +54,7 @@ def pytest_configure(config):
             'django.contrib.sessions',
             'django.contrib.sites',
             'django.contrib.staticfiles',
+            'background_task',
             'djimporter',
             'tests',
         ),
