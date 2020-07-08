@@ -17,14 +17,27 @@ ImportLog = get_importlog_model()
 
 class ListImportsView(ListView):
     model = ImportLog
+    template_name = "djimporter/importlog_list.html"
+    url_detail = 'djimporter:importlog-detail'
+    url_delete = 'djimporter:importlog-delete'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({
+            'url_detail': self.url_detail,
+            'url_delete': self.url_delete,
+        })
+        return context
 
 
 class ImportDetailView(DetailView):
     model = ImportLog
+    template_name = "djimporter/importlog_detail.html"
 
 
 class ImportDeleteView(DeleteView):
     model = ImportLog
+    template_name = "djimporter/importlog_confirm_delete.html"
 
     def get_success_url(self, *args, **kwargs):
         return reverse('djimporter:importlog-list')
