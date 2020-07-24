@@ -5,4 +5,4 @@ Pretende soportar sobretodo los siguientes casos:
   1. mapeo simple entre una correspondencia uno a uno.
      Es decir un fichero corresponde a un modelo de django
   2. mapeo simple con una o varias Foreingkeys asociadas al modelos
-  3. mapeo simple con una o varias relaciones Many to Many
+  3. Métodos pre_save y post_save
