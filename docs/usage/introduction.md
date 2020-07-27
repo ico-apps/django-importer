@@ -1,8 +1,8 @@
-# Introducción
-Esta app mapea ficheros CSVs con modelos de django
-Pretende soportar sobretodo los siguientes casos:
-- Un mapeo simple
-  1. mapeo simple entre una correspondencia uno a uno.
-     Es decir un fichero corresponde a un modelo de django
-  2. mapeo simple con una o varias Foreingkeys asociadas al modelos
-  3. Métodos pre_save y post_save
+# Introduction
+This app maps CSV files with django models
+It tries to support above all the following cases:
+- A simple mapping
+  1. Simple mapping between a one-to-one correspondence.
+     In other words, a file corresponds to a django model
+  2. Simple mapping with one or more Foreingkeys associated to the model
+  3. Pre_save and post_save methods
