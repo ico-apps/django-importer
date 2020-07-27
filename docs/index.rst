@@ -13,6 +13,8 @@ Welcome to djimporter's documentation!
    usage/installation
    usage/introduction
    usage/csvmodels
+   usage/deployment
+   usage/howto
 
 
 Indices and tables
