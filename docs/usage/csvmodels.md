@@ -13,7 +13,8 @@ class MyModelCsv(importers.CsvModel):
 ```
 
 
-Supongamos que tenemos este modelo simple de django:
+Suppose we have this simple django model:
+
 ## Simple mapping
 We call those maps that are built from the relationship between a csv file and a simple django model, a simple mapping
 Now we are going to define this case with an example
@@ -119,20 +120,20 @@ class AlbumCsv(importers.CsvModel):
 Here we see that the field **SlugRelatedField** allows us to find the object by means of the
 parameter **slug_field**
 
-## ForeingKey con más de una columna:
-Hay unos casos donde necesitamos encontrar un objeto que será una ForeingKey de nuestro modelo Django
-pero para hacerlo necesitamos más de un slug. Esto significa que debemos relacionar varias columnas
-csv con un objeto. Para esto tenemos un Field que se llama **MultiSlugRelatedField**
-Veamos un ejemplo:
-Nuestros datos csv son los siguientes:
+## ForeignKey with more than one column:
+There are some cases where we need to find an object that will be a ForeingKey of our Django model.
+But to do that we need more than one slug. This means that we must relate several columns
+csv with an object. For this we have a Field called **MultiSlugRelatedField**
+Let's see an example:
+Our csv data is as follows:
 
 ```
 first_name;surname;release_date;num_stars;name
 Susan;Schmith;2000-01-01;5;aaa
 Wolf;Schmith;2001-01-01;4;bbb
 ```
-En este csv tenemos que encontrar a un Artista desde las columnas first_name y surname.
-Para ello usaremos una definición de CsvModel así:
+In this csv we have to find an Artist from the first_name and surname columns.
+For this we will use a definition of CsvModel like this:
 
 ```
 class AlbumCsv(importers.CsvModel):
