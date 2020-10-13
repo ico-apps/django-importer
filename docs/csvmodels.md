@@ -219,3 +219,33 @@ class AlbumCsv(importers.CsvModel):
             )
             obj.artist = musician
 ```
+
+# Specials Fields
+## DateField
+DateField allows us to go from a text format to a date format. It has a variable that allows us to define how it will be formatted. This variable is called DEFAULT_DATE_FORMAT and we can modify it when we initialize the DateField class using the var 'strptime'
+
+```
+f = DateField(strptime='%d-%m%Y')
+```
+
+The default value of DEFAULT_DATE_FORMAT is
+```
+f = DateField()
+f.DEFAULT_DATE_FORMAT == '%Y-%m-%d'
+```
+
+##IgnoredField
+IgnoredField we use it to not take any value because it appears in a file and let it be the database itself that introduces a default value.
+This Field, if the model is well defined, should not be used
+
+
+#DefaultField
+We use this field for override all values in csv
+For example if we have:
+
+```
+f = DefaultField(1, match='count')
+```
+
+this mean than when we have a csv file with a 'count' in one column of that file, then all registers is saved with the value '1' This is usefull when we want put as a reset one value and it's is diferent of the default value of the database.
+
