@@ -234,11 +234,6 @@ f = DateField()
 f.DEFAULT_DATE_FORMAT == '%Y-%m-%d'
 ```
 
-## IgnoredField
-IgnoredField we use it to not take any value because it appears in a file and let it be the database itself that introduces a default value.
-This Field, if the model is well defined, should not be used
-
-
 ## DefaultField
 We use this field for override all values in csv
 For example if we have:
