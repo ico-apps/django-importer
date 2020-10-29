@@ -248,7 +248,7 @@ class ReadRow(object):
             self.create_model()
             self.pre_save()
             self.validate()
-        except ValidationError:
+        except (ValidationError, ValueError):
             # stop processing the row if there are errors
             # NOTE: errors should be handled inside the functions
             # because there they have more details
@@ -280,7 +280,7 @@ class ReadRow(object):
 
                 cell = self.line[csv_fieldname]
                 data[model_fieldname] = field.to_python(cell)
-            except ValidationError as error:
+            except (ValidationError, ValueError) as error:
                 # handle the error here because we know which is the
                 # invalid field and we want to provide this info to
                 # the user.
