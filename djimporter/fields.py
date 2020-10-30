@@ -174,9 +174,6 @@ class DateField(Field):
         return None
 
 
-class IgnoredField(Field):
-    field_name = "Ignore the value"
-
 class ForeignKey(Field):
     field_name = "ForeignKey"
 
