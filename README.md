@@ -45,6 +45,7 @@ python3 -m virtualenv -p /usr/bin/python3 env
 source env/bin/activate
 pip install -r requirements.txt
 pip install -r tests/requirements.txt
+cp djimporter/templates/djimporter/base.example.html djimporter/templates/djimporter/base.html
 
 # 3. run test suite!
 pytest
