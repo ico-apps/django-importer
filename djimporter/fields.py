@@ -167,9 +167,11 @@ class DateField(Field):
 
     def to_python(self, value):
         if value:
-            return datetime.strptime(value, self.strptime)
-        else:
-           return None
+            try:
+                return datetime.strptime(value, self.strptime)
+            except ValueError as e:
+                raise ValidationError(e)
+        return None
 
 
 class IgnoredField(Field):
