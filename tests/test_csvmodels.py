@@ -5,9 +5,8 @@ These tests deal with ensuring that we correctly map the model fields onto
 an appropriate set of serializer fields for each case.
 """
 import os
-import tempfile
 
-from django.db import models
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from djimporter import fields, importers
@@ -35,3 +34,9 @@ class SlugFieldMapping(TestCase):
         importer = ForeignKeySourceCsv(csv_path)
 
         self.assertFalse(importer.is_valid())
+
+
+class DateFieldTest(TestCase):
+    def test_unexpected_date_format(self):
+        created = fields.DateField()
+        self.assertRaises(ValidationError, created.to_python, '19/04/02 07:50')
