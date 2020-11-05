@@ -4,6 +4,7 @@ Define the csv model base classe
 import copy
 import csv
 import io
+import os
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models.base import Model
@@ -334,7 +335,8 @@ class ReadRow(object):
         #   e.g. missing required context
         except (ValidationError, ValueError, KeyError, ObjectDoesNotExist,
             DatabaseError) as error:
-            self.add_error(self.line_number, f.__name__, str(error))
+            file_name = os.path.split(f.__name__)[-1]
+            self.add_error(self.line_number, file_name, str(error))
 
     def pre_save(self):
         if not hasattr(self.Meta, 'pre_save'): return
