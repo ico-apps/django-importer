@@ -120,7 +120,7 @@ class CsvModel(object):
         return io.BytesIO(csv)
 
 
-    def is_valid(self):
+    def is_valid(self, log=None):
         csv_file = self.file
         if isinstance(self.file, str):
             csv_file= self.open_file(self.file)
@@ -130,10 +130,15 @@ class CsvModel(object):
         if self.errors:
             return False
 
+        num_lines = len(self.csv_file)
         for line_number, line in enumerate(self.csv_reader, start=2):
             # line is a dictionary with the fields of csv head as key
             # and values of the row as value of the dictionary
             self.process_line(line, line_number)
+            if log is not None:
+                percent = (line_number - 1) * 100 / num_lines
+                log.percent = percent
+                log.save()
 
         self.validate_in_file()
         if self.errors:

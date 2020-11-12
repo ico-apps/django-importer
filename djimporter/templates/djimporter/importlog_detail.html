@@ -19,7 +19,10 @@
             <div class="col-2">
                 {% trans 'Status' %}
             </div>
-            <div class="col-2">
+            <div class="col-1">
+                {% trans 'Percent' %}
+            </div>
+            <div class="col-1">
                 {% trans 'Num Rows' %}
             </div>
           </div>
@@ -36,7 +39,10 @@
             <div class="col-2">
                 {{ object.status }}
             </div>
-            <div class="col-2">
+            <div class="col-1">
+                {{ object.percent }}%
+            </div>
+            <div class="col-1">
                 {{ object.num_rows}}
             </div>
           </div>
