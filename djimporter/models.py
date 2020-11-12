@@ -16,6 +16,7 @@ class AbstractBaseLog(models.Model):
     )
 
     status = models.CharField(max_length=25, choices=STATUS_CHOICES)
+    percent = models.SmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.CharField(max_length=50)
 
