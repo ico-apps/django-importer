@@ -138,6 +138,7 @@ class CsvModel(object):
             if log is not None:
                 percent = (line_number - 1) * 100 / num_lines
                 log.percent = percent
+                log.num_rows = line_number - 1
                 log.save()
 
         self.validate_in_file()
