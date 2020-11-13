@@ -130,14 +130,16 @@ class CsvModel(object):
         if self.errors:
             return False
 
-        num_lines = len(self.csv_file)
+        num_lines = len(self.csv_file) - 1
+        # Status progress will be saved 10 times
+        block_lines = int(num_lines / 10)
         for line_number, line in enumerate(self.csv_reader, start=2):
             # line is a dictionary with the fields of csv head as key
             # and values of the row as value of the dictionary
             self.process_line(line, line_number)
-            if log is not None:
+            if log is not None and (line_number - 1) % block_lines == 0:
                 percent = (line_number - 1) * 100 / num_lines
-                log.percent = percent
+                log.percent = round(percent)
                 log.num_rows = line_number - 1
                 log.save()
 
