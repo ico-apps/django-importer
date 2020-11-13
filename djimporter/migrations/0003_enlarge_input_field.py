@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djimporter', '0003_auto_20201113_1148'),
+        ('djimporter', '0002_importlog_progress'),
     ]
 
     operations = [
