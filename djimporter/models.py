@@ -22,7 +22,7 @@ class AbstractBaseLog(models.Model):
 
     errors = models.TextField(blank=True)
     num_rows = models.IntegerField(null=True)
-    input_file = models.CharField(max_length=100)
+    input_file = models.CharField(max_length=255)
 
     class Meta:
         abstract = True
