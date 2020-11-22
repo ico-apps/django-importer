@@ -106,6 +106,8 @@ class TimeField(Field):
     field_name = "Time"
 
     def to_python(self, value):
+        if hasattr(self, "null") and not value:
+            return None
         field = django_TimeField()
         return field.to_python(value)
 
