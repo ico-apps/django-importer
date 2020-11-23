@@ -47,11 +47,8 @@ class Field:
     }
     position = 0
     field_name = "Field"
-    # Are null values allowed?
-    # If null value is allowed, this field could be empty in the row
-    null = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, null=False, **kwargs):
         self.in_csv = kwargs.pop('in_csv', True)
 
         if 'row_num' in kwargs:
@@ -62,14 +59,14 @@ class Field:
         if 'match' in kwargs:
             self.match = kwargs.pop('match')
 
-        if 'null' in kwargs:
-            self.null = kwargs.pop('null')
-
         if 'default' in kwargs:
             # with this value we can overwrite all values in csv
             # for this field. It is usefull when we can a default value
             # but we don't put one default value in the model
             self.has_default = self.to_python(kwargs.pop('default'))
+
+        # If null value is allowed, this field could be empty in the row
+        self.null = null
 
         # Collect default error message from self and parent classes
         error_messages = kwargs.get('error_messages')
@@ -106,6 +103,8 @@ class TimeField(Field):
     field_name = "Time"
 
     def to_python(self, value):
+        if self.null and not value:
+            return None
         field = django_TimeField()
         return field.to_python(value)
 

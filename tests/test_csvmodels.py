@@ -40,3 +40,13 @@ class DateFieldTest(TestCase):
     def test_unexpected_date_format(self):
         created = fields.DateField()
         self.assertRaises(ValidationError, created.to_python, '19/04/02 07:50')
+
+
+class TimeFieldTest(TestCase):
+    def test_allow_null_values(self):
+        start_time = fields.TimeField(null=True)
+        self.assertIsNone(start_time.to_python(''))
+
+    def test_explicit_disallow_null_values(self):
+        start_time = fields.TimeField(null=False)
+        self.assertRaises(ValidationError, start_time.to_python, '')
