@@ -392,7 +392,7 @@ class ListGeoField(Field):
         # The task pretend deserialized and saved the transects
 
         if hasattr(self, 'shape'):
-            monitoring_site.deserialize_geojson(self.shape)
+            monitoring_site.deserialize_transects(self.shape)
 
     def to_python(self, colname, line_number, value):
         self.colname = colname
