@@ -381,44 +381,6 @@ class ComposedKeyField(ForeignKey):
             raise ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
 
 
-class ListGeoField(Field):
-    # We use this field insted of TaskField
-    # becouse we want check the value before saved
-    # the monitoring site
-    field_name = "ListGeoField"
-
-    def task(self, monitoring_site):
-        # Task is a method used when the monitoring site is saved
-        # The task pretend deserialized and saved the transects
-
-        if hasattr(self, 'shape'):
-            monitoring_site.deserialize_transects(self.shape)
-
-    def to_python(self, colname, line_number, value):
-        self.colname = colname
-        self.line_number= line_number
-
-        null = False
-        if hasattr(self, 'null'):
-            null = self.null
-        if not value:
-            if not null:
-                raise ListGeoException("ListGeo not exist")
-            else:
-                return self
-        self.shape = json.loads(value)
-        try:
-            sections = [x['properties']['section'] for x in self.shape['features']]
-        except KeyError as e:
-            msg = "Malformed transect: %s" % e
-            raise ValueError(msg)
-        if len(sections) != len(set(sections)):
-            msg = "There are sections duplicates sections: %s" % (tuple(sections),)
-            raise ValueError(msg)
-
-        return self
-
-
 class TaskField(Field):
     """
     We use this field for diverse task that we want execute
