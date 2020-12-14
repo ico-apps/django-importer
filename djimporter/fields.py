@@ -381,62 +381,6 @@ class ComposedKeyField(ForeignKey):
             raise ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
 
 
-class TaskField(Field):
-    """
-    We use this field for diverse task that we want execute
-    after one model is saved
-
-    """
-
-    field_name = "Task_Field"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.method = args[0]
-        self.required = True
-        self.f_args = ()
-        self.parameters = ()
-        if 'required' in kwargs:
-            self.required = kwargs['required']
-        if 'f_args' in kwargs:
-            self.f_args = kwargs['f_args']
-
-
-    def task(self, object_father):
-        # we can execute one task next the object father is create
-        # is like signal but we can du this next bulk_create
-        if hasattr(object_father, self.method):
-            if not self.in_csv:
-                if self.parameters:
-                    getattr(object_father, self.method)(*self.parameters)
-                else:
-                    getattr(object_father, self.method)()
-
-            elif self.in_csv and self.parameters:
-                    getattr(object_father, self.method)(*self.parameters)
-
-
-    def to_python(self, colname, line_number, value):
-        self.colname = colname
-        self.line_number= line_number
-        self.parameters = ()
-
-        if not self.in_csv and self.f_args:
-            self.parameters = self.f_args
-        elif self.in_csv:
-            if value:
-                self.parameters = tuple(list(self.f_args)+[value])
-
-            elif self.required and not value:
-                raise FieldValueMissing(self.field_name)
-
-            elif not self.required and not value:
-                self.parameters = ()
-
-
-        return self
-
-
 class MultiSlugRelatedField(SlugRelatedField):
     """
     overwrite SlugRelatedField for do a query more complex
