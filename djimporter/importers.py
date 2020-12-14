@@ -1,16 +1,14 @@
 """
 Define the csv model base classe
 """
-import copy
 import csv
 import io
 import os
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models.base import Model
-from django.db.utils import IntegrityError
 from django.db import DatabaseError, transaction
 from django.utils.translation import gettext as _
+
 
 class MetaFieldException(Exception):
     """
@@ -18,6 +16,7 @@ class MetaFieldException(Exception):
     """
     def __init__(self, message):
         Exception.__init__(self, message)
+
 
 class CsvModel(object):
 
@@ -39,8 +38,7 @@ class CsvModel(object):
         self.dbModel = self.Meta.dbModel
         self.post_save = hasattr(self.Meta, 'post_save')
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
-        self.not_create_model = hasattr(self.Meta, 'create_model') and \
-                not self.Meta.create_model
+        self.not_create_model = hasattr(self.Meta, 'create_model') and not self.Meta.create_model
 
     def get_user_visible_fields(self):
         # extra fields is used to capture the names of the columns used in the pre_save and
@@ -81,7 +79,6 @@ class CsvModel(object):
 
         return attributes
 
-
     def get_mapping(self):
         """
         The mapping consist in a dictionary when the keys is
@@ -97,13 +94,11 @@ class CsvModel(object):
 
         return match
 
-
     def add_error(self, line, field, error):
         err_dict = {'line': line,
                     'error': {field: error}
                     }
         self.errors.append(err_dict)
-
 
     def get_dict_error(self):
         if self.dict_error:
@@ -113,17 +108,15 @@ class CsvModel(object):
         self.dict_error = {i: (msg % i) for i in self.get_user_visible_fields()}
         return self.dict_error
 
-
     def open_file(self, path):
         txt = open(path).read()
         csv = bytes(txt, encoding='utf-8')
         return io.BytesIO(csv)
 
-
     def is_valid(self):
         csv_file = self.file
         if isinstance(self.file, str):
-            csv_file= self.open_file(self.file)
+            csv_file = self.open_file(self.file)
         self.csv_file = csv_file.read().decode('UTF-8').splitlines()
         self.csv_reader = csv.DictReader(self.csv_file, delimiter=self.delimiter)
         self.validate_header()
@@ -151,14 +144,13 @@ class CsvModel(object):
 
         errors = {}
         for f in self.get_user_visible_fields():
-            if not f in self.csv_reader.fieldnames:
+            if f not in self.csv_reader.fieldnames:
                 errors.update({f: _(self.get_dict_error()[f])})
 
         if errors:
             self.add_error(1, 'header', errors)
             return False
         return True
-
 
     def save(self):
         if self.errors: return self.errors
@@ -182,18 +174,17 @@ class CsvModel(object):
                     if row.errors:
                         self.errors.extend(row.errors)
 
-
         except DatabaseError as e:
             self.add_error(1, "Error Database", {"Error Database": e.args})
 
-
     def process_line(self, line, line_number):
-        data = {'line': line,
-                'line_number': line_number,
-                'context': self.context,
-                'meta': self.Meta,
-                'fields': self.fields,
-                'mapping': self.mapping,
+        data = {
+            'line': line,
+            'line_number': line_number,
+            'context': self.context,
+            'meta': self.Meta,
+            'fields': self.fields,
+            'mapping': self.mapping,
         }
         new_obj = ReadRow(**data)
 
@@ -219,7 +210,7 @@ class CsvModel(object):
                 err = {'unique': msg}
                 self.add_error(i.line_number, 'unique', err)
             else:
-                l_unique_together[t]= None
+                l_unique_together[t] = None
 
 
 class ReadRow(object):
@@ -227,18 +218,18 @@ class ReadRow(object):
     This class build a object from the datas to a row
     """
 
-    def __init__(self, fields=None, mapping=None, meta=None, context={},
-            line=None, line_number=None):
+    def __init__(self, fields=None, mapping=None, meta=None, context=None,
+                 line=None, line_number=None):
         self.Meta = meta
         self.fields = fields
         self.mapping = mapping
-        self.context = context
+        self.context = context or {}
         self.line = line
         self.line_number = line_number
 
         self.data = None
         self.object = None
-        self.errors= []
+        self.errors = []
 
         self.secuence()
 
@@ -328,13 +319,12 @@ class ReadRow(object):
 
     def exec_f(self, f):
         try:
-           f(self)
+            f(self)
         # TODO(@slamora) check which exceptions should be caught
         #   I believe that only none or only ValidationError
         #   handling other execeptions will mask code problems
         #   e.g. missing required context
-        except (ValidationError, ValueError, KeyError, ObjectDoesNotExist,
-            DatabaseError) as error:
+        except (ValidationError, ValueError, KeyError, ObjectDoesNotExist, DatabaseError) as error:
             file_name = os.path.split(f.__name__)[-1]
             self.add_error(self.line_number, file_name, str(error))
 
@@ -343,7 +333,6 @@ class ReadRow(object):
         for pre in self.Meta.pre_save:
             f = getattr(self.Meta, pre)
             self.exec_f(f)
-
 
     def post_save(self):
         if not hasattr(self.Meta, 'post_save'): return

@@ -1,5 +1,3 @@
-import json
-
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -117,7 +115,6 @@ class BooleanField(Field):
             return None
         return value.lower() == "true"
 
-
     def __init__(self, *args, **kwargs):
         if 'is_true' in kwargs:
             self.is_true_method = kwargs.pop('is_true')
@@ -184,7 +181,7 @@ class ForeignKey(Field):
         try:
             if not issubclass(self.model, djangoModel):
                 raise TypeError("The first argument should be a django model class.")
-        except TypeError as e:
+        except TypeError:
             raise TypeError("The first argument should be a django model class.")
         super(ForeignKey, self).__init__(**kwargs)
 
@@ -270,7 +267,7 @@ class CsvRelated(Field):
     field_name = "Csv_Related"
 
     def __init__(self, *args, **kwargs):
-        self.csvModel= args[0]
+        self.csvModel = args[0]
 
     def to_python(self, value):
         return value
@@ -317,7 +314,7 @@ class ManyToManyField(Field):
 
     def to_python(self, colname, line_number, value):
         self.colname = colname
-        self.line_number= line_number
+        self.line_number = line_number
         self.dict_params[self.match] = value
 
         p1 = self.csvModel.objects.get(**self.dict_params)
@@ -350,7 +347,7 @@ class ComposedKeyField(ForeignKey):
     def to_python(self, value):
         try:
             return self.model.objects.get(**value)
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist:
             raise ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
 
 
@@ -368,7 +365,7 @@ class MultiSlugRelatedField(SlugRelatedField):
         super(MultiSlugRelatedField, self).__init__(*args, **kwargs)
         # matchs is similar to match but is a dictionary
         # becouse is multiple
-        self.matchs= kwargs.pop('matchs', None)
+        self.matchs = kwargs.pop('matchs', None)
 
     def get(self, dvalue):
         return self.get_queryset().get(**dvalue)
