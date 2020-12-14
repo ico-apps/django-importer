@@ -266,33 +266,6 @@ class RelatedFromUniquesField(SlugRelatedField):
         return self.get_queryset().get(**d)
 
 
-class SpeciesMappingField(SlugRelatedField):
-    """
-    overwrite SlugRelatedField for du a query more complex
-    from SpeciesMappingCsv.
-    Is not necessary save in the csvmodel becouse
-    the to_python do this task
-
-    """
-
-    field_name = "SpeciesMappingField"
-
-    def get(self, dvalue):
-        d_source = self.slug_field['source']
-        dict_source = {d_source[k].strip(): dvalue[k].strip()
-                for k in d_source
-        }
-        d_dest = self.slug_field['dest']
-        dict_dest = {d_dest[k].strip(): dvalue[k].strip()
-                for k in d_dest
-        }
-
-        source = self.get_queryset().get(**dict_source)
-        dest = self.get_queryset().get(**dict_dest)
-
-        source.dst_species_mapping.add(dest)
-
-
 class CsvRelated(Field):
     field_name = "Csv_Related"
 
