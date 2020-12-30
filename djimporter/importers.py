@@ -137,10 +137,11 @@ class CsvModel(object):
             # line is a dictionary with the fields of csv head as key
             # and values of the row as value of the dictionary
             self.process_line(line, line_number)
-            if log is not None and (line_number - 1) % block_lines == 0:
-                progress = (line_number - 1) * 100 / num_lines
+            row = line_number - 1
+            if log is not None and row % block_lines == 0:
+                progress = row * 100 / num_lines
                 log.progress = round(progress)
-                log.num_rows = line_number - 1
+                log.num_rows = row
                 log.save()
 
         self.validate_in_file()
