@@ -132,7 +132,7 @@ class CsvModel(object):
 
         num_lines = len(self.csv_file) - 1
         # Status progress will be saved 10 times
-        block_lines = int(num_lines / 10)
+        block_lines = int(num_lines / 10) if num_lines >= 10 else 1
         for line_number, line in enumerate(self.csv_reader, start=2):
             # line is a dictionary with the fields of csv head as key
             # and values of the row as value of the dictionary
