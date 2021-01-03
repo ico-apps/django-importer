@@ -120,7 +120,7 @@ class CsvModel(object):
         return io.BytesIO(csv)
 
 
-    def is_valid(self, log=None):
+    def is_valid(self, log=None, processed_rows=0, total_lines=0):
         csv_file = self.file
         if isinstance(self.file, str):
             csv_file= self.open_file(self.file)
@@ -130,19 +130,19 @@ class CsvModel(object):
         if self.errors:
             return False
 
-        num_lines = len(self.csv_file) - 1
+        num_lines = len(self.csv_file) - 1 if total_lines == 0 else total_lines
         # Status progress will be saved 10 times
         block_lines = int(num_lines / 10) if num_lines >= 10 else 1
         for line_number, line in enumerate(self.csv_reader, start=2):
             # line is a dictionary with the fields of csv head as key
             # and values of the row as value of the dictionary
             self.process_line(line, line_number)
-            row = line_number - 1
+            row = processed_rows + line_number - 1
             if log is not None and row % block_lines == 0:
                 progress = row * 100 / num_lines
                 log.progress = round(progress)
                 log.num_rows = row
-                log.save()
+                log.save(using='default_logs')
 
         self.validate_in_file()
         if self.errors:
