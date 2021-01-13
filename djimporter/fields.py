@@ -1,5 +1,3 @@
-import json
-
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -47,11 +45,8 @@ class Field:
     }
     position = 0
     field_name = "Field"
-    # Are null values allowed?
-    # If null value is allowed, this field could be empty in the row
-    null = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, null=False, **kwargs):
         self.in_csv = kwargs.pop('in_csv', True)
 
         if 'row_num' in kwargs:
@@ -62,14 +57,14 @@ class Field:
         if 'match' in kwargs:
             self.match = kwargs.pop('match')
 
-        if 'null' in kwargs:
-            self.null = kwargs.pop('null')
-
         if 'default' in kwargs:
             # with this value we can overwrite all values in csv
             # for this field. It is usefull when we can a default value
             # but we don't put one default value in the model
             self.has_default = self.to_python(kwargs.pop('default'))
+
+        # If null value is allowed, this field could be empty in the row
+        self.null = null
 
         # Collect default error message from self and parent classes
         error_messages = kwargs.get('error_messages')
@@ -106,6 +101,8 @@ class TimeField(Field):
     field_name = "Time"
 
     def to_python(self, value):
+        if self.null and not value:
+            return None
         field = django_TimeField()
         return field.to_python(value)
 
@@ -117,7 +114,6 @@ class BooleanField(Field):
         if hasattr(self, "null") and not value:
             return None
         return value.lower() == "true"
-
 
     def __init__(self, *args, **kwargs):
         if 'is_true' in kwargs:
@@ -185,7 +181,7 @@ class ForeignKey(Field):
         try:
             if not issubclass(self.model, djangoModel):
                 raise TypeError("The first argument should be a django model class.")
-        except TypeError as e:
+        except TypeError:
             raise TypeError("The first argument should be a django model class.")
         super(ForeignKey, self).__init__(**kwargs)
 
@@ -267,38 +263,11 @@ class RelatedFromUniquesField(SlugRelatedField):
         return self.get_queryset().get(**d)
 
 
-class SpeciesMappingField(SlugRelatedField):
-    """
-    overwrite SlugRelatedField for du a query more complex
-    from SpeciesMappingCsv.
-    Is not necessary save in the csvmodel becouse
-    the to_python do this task
-
-    """
-
-    field_name = "SpeciesMappingField"
-
-    def get(self, dvalue):
-        d_source = self.slug_field['source']
-        dict_source = {d_source[k].strip(): dvalue[k].strip()
-                for k in d_source
-        }
-        d_dest = self.slug_field['dest']
-        dict_dest = {d_dest[k].strip(): dvalue[k].strip()
-                for k in d_dest
-        }
-
-        source = self.get_queryset().get(**dict_source)
-        dest = self.get_queryset().get(**dict_dest)
-
-        source.dst_species_mapping.add(dest)
-
-
 class CsvRelated(Field):
     field_name = "Csv_Related"
 
     def __init__(self, *args, **kwargs):
-        self.csvModel= args[0]
+        self.csvModel = args[0]
 
     def to_python(self, value):
         return value
@@ -345,7 +314,7 @@ class ManyToManyField(Field):
 
     def to_python(self, colname, line_number, value):
         self.colname = colname
-        self.line_number= line_number
+        self.line_number = line_number
         self.dict_params[self.match] = value
 
         p1 = self.csvModel.objects.get(**self.dict_params)
@@ -378,102 +347,8 @@ class ComposedKeyField(ForeignKey):
     def to_python(self, value):
         try:
             return self.model.objects.get(**value)
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist:
             raise ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
-
-
-class ListGeoField(Field):
-    # We use this field insted of TaskField
-    # becouse we want check the value before saved
-    # the monitoring site
-    field_name = "ListGeoField"
-
-    def task(self, monitoring_site):
-        # Task is a method used when the monitoring site is saved
-        # The task pretend deserialized and saved the transects
-
-        if hasattr(self, 'shape'):
-            monitoring_site.deserialize_geojson(self.shape)
-
-    def to_python(self, colname, line_number, value):
-        self.colname = colname
-        self.line_number= line_number
-
-        null = False
-        if hasattr(self, 'null'):
-            null = self.null
-        if not value:
-            if not null:
-                raise ListGeoException("ListGeo not exist")
-            else:
-                return self
-        self.shape = json.loads(value)
-        try:
-            sections = [x['properties']['section'] for x in self.shape['features']]
-        except KeyError as e:
-            msg = "Malformed transect: %s" % e
-            raise ValueError(msg)
-        if len(sections) != len(set(sections)):
-            msg = "There are sections duplicates sections: %s" % (tuple(sections),)
-            raise ValueError(msg)
-
-        return self
-
-
-class TaskField(Field):
-    """
-    We use this field for diverse task that we want execute
-    after one model is saved
-
-    """
-
-    field_name = "Task_Field"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.method = args[0]
-        self.required = True
-        self.f_args = ()
-        self.parameters = ()
-        if 'required' in kwargs:
-            self.required = kwargs['required']
-        if 'f_args' in kwargs:
-            self.f_args = kwargs['f_args']
-
-
-    def task(self, object_father):
-        # we can execute one task next the object father is create
-        # is like signal but we can du this next bulk_create
-        if hasattr(object_father, self.method):
-            if not self.in_csv:
-                if self.parameters:
-                    getattr(object_father, self.method)(*self.parameters)
-                else:
-                    getattr(object_father, self.method)()
-
-            elif self.in_csv and self.parameters:
-                    getattr(object_father, self.method)(*self.parameters)
-
-
-    def to_python(self, colname, line_number, value):
-        self.colname = colname
-        self.line_number= line_number
-        self.parameters = ()
-
-        if not self.in_csv and self.f_args:
-            self.parameters = self.f_args
-        elif self.in_csv:
-            if value:
-                self.parameters = tuple(list(self.f_args)+[value])
-
-            elif self.required and not value:
-                raise FieldValueMissing(self.field_name)
-
-            elif not self.required and not value:
-                self.parameters = ()
-
-
-        return self
 
 
 class MultiSlugRelatedField(SlugRelatedField):
@@ -490,7 +365,7 @@ class MultiSlugRelatedField(SlugRelatedField):
         super(MultiSlugRelatedField, self).__init__(*args, **kwargs)
         # matchs is similar to match but is a dictionary
         # becouse is multiple
-        self.matchs= kwargs.pop('matchs', None)
+        self.matchs = kwargs.pop('matchs', None)
 
     def get(self, dvalue):
         return self.get_queryset().get(**dvalue)
