@@ -89,12 +89,19 @@ class Field:
 
 
 class IntegerField(Field):
+    default_error_messages = {
+        'invalid': _('A valid integer is required.'),
+    }
     field_name = "Integer"
 
     def to_python(self, value):
         if hasattr(self, "null") and not value:
             return None
-        return int(value)
+        try:
+            data = int(value)
+        except (TypeError, ValueError):
+            self.fail('invalid')
+        return data
 
 
 class TimeField(Field):
