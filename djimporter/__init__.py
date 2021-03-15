@@ -1,9 +1,11 @@
 """
 Package metadata definition.
 """
-VERSION = (0, 0, 1, 'alpha', 0)
+VERSION = (0, 0, 1, 'beta', 0)
 
-default_app_config= 'djimporter.apps.ImporterConfig'
+
+default_app_config = 'djimporter.apps.ImporterConfig'
+
 
 def get_version():
     "Returns a PEP 386-compliant version number from VERSION."

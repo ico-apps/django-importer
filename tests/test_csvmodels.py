@@ -42,6 +42,12 @@ class DateFieldTest(TestCase):
         self.assertRaises(ValidationError, created.to_python, '19/04/02 07:50')
 
 
+class IntegerField(TestCase):
+    def test_invalid_literal(self):
+        count = fields.IntegerField()
+        self.assertRaises(ValidationError, count.to_python, 'U')
+
+
 class TimeFieldTest(TestCase):
     def test_allow_null_values(self):
         start_time = fields.TimeField(null=True)
