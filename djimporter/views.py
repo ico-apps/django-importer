@@ -61,11 +61,14 @@ class ImportFormView(FormView):
         # store valid form to allow other methods access it
         # e.g. get_importer_context
         self.form = form
-        self.task_log = self.create_import_task(form.files['upfile'])
+        if 'delimiter' in form.cleaned_data:
+            self.task_log = self.create_import_task(form.files['upfile'], delimiter=form.cleaned_data['delimiter'])
+        else:
+            self.task_log = self.create_import_task(form.files['upfile'])
 
         return HttpResponseRedirect(self.get_success_url())
 
-    def create_import_task(self, csv_file):
+    def create_import_task(self, csv_file, delimiter=None):
         importer_class = self.get_importer_class()
 
         task_log = ImportLog.objects.create(
@@ -84,7 +87,7 @@ class ImportFormView(FormView):
         )
 
         context = self.get_importer_context()
-        run_importer(dotted_path, csv_path, task_log.id, context=context)
+        run_importer(dotted_path, csv_path, task_log.id, context=context, delimiter=delimiter)
 
         return task_log
 

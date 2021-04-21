@@ -20,7 +20,7 @@ class MetaFieldException(Exception):
 
 class CsvModel(object):
 
-    def __init__(self, csvfile, context=None):
+    def __init__(self, csvfile, context=None, delimiter=None):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
@@ -34,7 +34,7 @@ class CsvModel(object):
         self.fields = self.get_fields()
         self.extra_fields = getattr(self.Meta, 'extra_fields', [])
         self.mapping = self.get_mapping()
-        self.delimiter = getattr(self.Meta, 'delimiter', ';')
+        self.delimiter = delimiter if delimiter is not None else getattr(self.Meta, 'delimiter', ';')
         self.dbModel = self.Meta.dbModel
         self.post_save = hasattr(self.Meta, 'post_save')
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
