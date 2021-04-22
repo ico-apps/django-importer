@@ -25,7 +25,7 @@ def run_importer(csv_model, csv_filepath, log_id, context={}):
 
     # run importer
     importer = importer_class(csv_filepath, context=context)
-    importer.is_valid()
+    importer.is_valid(log)
     importer.save()
 
     # update log with import result
@@ -34,6 +34,7 @@ def run_importer(csv_model, csv_filepath, log_id, context={}):
         log.errors = json.dumps(importer.errors)
     else:
         log.status = ImportLog.COMPLETED
+        log.progress = 100
         log.num_rows = len(importer.list_objs)
     log.save()
 

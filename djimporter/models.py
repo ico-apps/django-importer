@@ -16,12 +16,13 @@ class AbstractBaseLog(models.Model):
     )
 
     status = models.CharField(max_length=25, choices=STATUS_CHOICES)
+    progress = models.SmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.CharField(max_length=50)
 
     errors = models.TextField(blank=True)
     num_rows = models.IntegerField(null=True)
-    input_file = models.CharField(max_length=100)
+    input_file = models.CharField(max_length=255)
 
     class Meta:
         abstract = True
