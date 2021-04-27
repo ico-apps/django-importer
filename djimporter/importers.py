@@ -122,7 +122,14 @@ class CsvModel(object):
         if self.headers_mapping is None:
             return fieldnames
 
-        new_fieldnames = [self.headers_mapping[file_header] for file_header in fieldnames]
+        # Change field name if there is a correspondence in headers_mapping
+        new_fieldnames = [
+            self.headers_mapping[file_header]
+            if file_header in self.headers_mapping
+            else file_header
+            for file_header in fieldnames
+        ]
+
         return new_fieldnames
 
     def is_valid(self):
