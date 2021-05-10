@@ -20,7 +20,7 @@ class MetaFieldException(Exception):
 
 class CsvModel(object):
 
-    def __init__(self, csvfile, context=None):
+    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
@@ -33,8 +33,10 @@ class CsvModel(object):
 
         self.fields = self.get_fields()
         self.extra_fields = getattr(self.Meta, 'extra_fields', [])
+        self.headers_mapping = headers_mapping
+
         self.mapping = self.get_mapping()
-        self.delimiter = getattr(self.Meta, 'delimiter', ';')
+        self.delimiter = delimiter if delimiter is not None else getattr(self.Meta, 'delimiter', ';')
         self.dbModel = self.Meta.dbModel
         self.post_save = hasattr(self.Meta, 'post_save')
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
@@ -113,12 +115,33 @@ class CsvModel(object):
         csv = bytes(txt, encoding='utf-8')
         return io.BytesIO(csv)
 
+    def change_headers_mapping(self):
+        reader = csv.DictReader(self.csv_file, delimiter=self.delimiter)
+        fieldnames = reader.fieldnames
+
+        if self.headers_mapping is None:
+            return fieldnames
+
+        # Change field name if there is a correspondence in headers_mapping
+        new_fieldnames = [
+            self.headers_mapping[file_header]
+            if file_header in self.headers_mapping
+            else file_header
+            for file_header in fieldnames
+        ]
+
+        return new_fieldnames
+
     def is_valid(self):
         csv_file = self.file
         if isinstance(self.file, str):
             csv_file = self.open_file(self.file)
         self.csv_file = csv_file.read().decode('UTF-8').splitlines()
-        self.csv_reader = csv.DictReader(self.csv_file, delimiter=self.delimiter)
+        fieldnames = self.change_headers_mapping()
+        self.csv_reader = csv.DictReader(self.csv_file, delimiter=self.delimiter, fieldnames=fieldnames)
+        # Skip header because we are passing fieldnames
+        next(self.csv_reader)
+
         self.validate_header()
         if self.errors:
             return False
