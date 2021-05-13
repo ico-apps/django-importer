@@ -109,8 +109,8 @@ class CsvModel(object):
                 self.errors.append(err_dict)
                 return
 
-        elif hasattr(error, 'message'):
-            message = error.message
+        elif hasattr(error, 'messages'):
+            message = ', '.join(error.messages)
         else:
             message = str(error)
         err_dict = {
@@ -354,8 +354,8 @@ class ReadRow(object):
                 self.errors.append(err_dict)
                 return
 
-        elif hasattr(error, 'message'):
-            message = error.message
+        elif hasattr(error, 'messages'):
+            message = ', '.join(error.messages)
         else:
             message = str(error)
         err_dict = {
