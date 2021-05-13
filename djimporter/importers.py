@@ -238,9 +238,9 @@ class CsvModel(object):
             # unique_together
             t = i.unique_together
             if t in l_unique_together:
-                msg = "These fields %s must be unique together values %s"
-                msg = msg % (self.Meta.unique_together, t)
-                err = {'unique': msg}
+                msg = "Combination of %s %s is repeated."
+                msg = msg % (', '.join(self.Meta.unique_together), t)
+                err = ValidationError({'unique': msg}, code='invalid')
                 self.add_error(i.line_number, 'unique', err)
             else:
                 l_unique_together[t] = None
