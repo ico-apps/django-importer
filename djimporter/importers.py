@@ -96,10 +96,20 @@ class CsvModel(object):
 
         return match
 
-    def add_error(self, line, field, error):
-        err_dict = {'line': line,
-                    'error': {field: error}
-                    }
+    def add_error(self, line_number, field, error):
+        #import pudb; pu.db
+        if hasattr(error, 'message_dict'):
+            # message_dict attribute exists on ValidationError
+            # when a dict is sent during error creation
+            field = list(error.message_dict.keys())[0]
+            message = error.message_dict[field][0]
+        else:
+            message = str(error)
+        err_dict = {
+            'line': line_number,
+            'field': field,
+            'message': message
+        }
         self.errors.append(err_dict)
 
     def get_dict_error(self):
