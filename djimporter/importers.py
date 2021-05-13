@@ -330,8 +330,11 @@ class ReadRow(object):
         try:
             self.object.full_clean()
         except ValidationError as e:
-            fields = list(e.message_dict.keys())[0]
-            self.add_error(self.line_number, fields, e)
+            field = list(e.message_dict.keys())[0]
+            # Only print errors if field is related to uploaded file,
+            # but if no errors added, add error to prevent a valid file when it isn't
+            if field in list(self.mapping.values()) or len(self.errors) == 0:
+                self.add_error(self.line_number, field, e)
 
     def save(self):
         if self.errors: return self.errors
