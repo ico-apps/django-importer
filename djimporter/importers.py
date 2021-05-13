@@ -325,9 +325,17 @@ class ReadRow(object):
         self.object.save()
 
     def add_error(self, line_number, field, error):
-        err_dict = {'line': line_number,
-                    'error': {field: error}
-                    }
+        if isinstance(error, dict):
+            message = str(error)
+        elif isinstance(error, list):
+            message = str(error)
+        else:
+            message = str(error)
+        err_dict = {
+            'line': line_number,
+            'field': field,
+            'message': message
+        }
         self.errors.append(err_dict)
 
     def get_unique_together(self):

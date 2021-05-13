@@ -3,72 +3,70 @@
 
 {% block content %}
 
-        <div class="container mt-5">
-          <h3 class="text-muted">{{ object.input_file }}</h3>
-          <hr />
-          <div class="row border-bottom">
-            <div class="col-3">
-                {% trans 'Created' %}
-            </div>
-            <div class="col-3">
-                {% trans 'File' %}
-            </div>
-            <div class="col-2">
-                {% trans 'User' %}
-            </div>
-            <div class="col-2">
-                {% trans 'Status' %}
-            </div>
-            <div class="col-2">
-                {% trans 'Num Rows' %}
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-3">
-                {{ object.created_at }}
-            </div>
-            <div class="col-3">
-                {{ object.concept }}
-            </div>
-            <div class="col-2">
-                {{ object.user  }}
-            </div>
-            <div class="col-2">
-                {{ object.status }}
-            </div>
-            <div class="col-2">
-                {{ object.num_rows}}
-            </div>
-          </div>
-          {% if object.list_errors %}
-          <div class="row-fluid border border-dark rounded p-3 pt-5">
-            <div class="col-12">
-              <div>
-                <h3>Errors for <strong>{{ object.input_file }}</strong></h3>
-                <table class="table table-hover table-striped">
-                  <caption>Errors found in the validated file</caption>
-                  <thead>
-                    <th scope="col">#</th>
-                    <th scope="col">line</th>
-                    <th scope="col">field</th>
-                    <th scope="col">error</th>
-                  </thead>
-                  <tbody>
-                    {% for error in object.list_errors %}
-                      {% for field, details in error.error.items %}
-                    <tr>
-                      <td class="align-middle">{{ forloop.parentloop.counter }}</td>
-                      <td class="align-middle">{{ error.line }}</td>
-                      <td class="align-middle">{{ field }}</td>
-                      <td>{{ details }}</td>
-                    </tr>
-                      {% endfor %}
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            {% endif %}
-        </div><!-- /.row-fluid -->
+<div class="container mt-5">
+  <h3 class="text-muted">{{ object.input_file }}</h3>
+  <hr />
+  <div class="row border-bottom">
+    <div class="col-3">
+        {% trans 'Created' %}
+    </div>
+    <div class="col-3">
+        {% trans 'File' %}
+    </div>
+    <div class="col-2">
+        {% trans 'User' %}
+    </div>
+    <div class="col-2">
+        {% trans 'Status' %}
+    </div>
+    <div class="col-2">
+        {% trans 'Num Rows' %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-3">
+        {{ object.created_at }}
+    </div>
+    <div class="col-3">
+        {{ object.concept }}
+    </div>
+    <div class="col-2">
+        {{ object.user  }}
+    </div>
+    <div class="col-2">
+        {{ object.status }}
+    </div>
+    <div class="col-2">
+        {{ object.num_rows}}
+    </div>
+  </div>
+  {% if object.list_errors %}
+  <div class="row-fluid border border-dark rounded p-3 pt-5">
+    <div class="col-12">
+      <div>
+        <h3>Errors for <strong>{{ object.input_file }}</strong></h3>
+        <table class="table table-hover table-striped">
+          <caption>Errors found in the validated file</caption>
+          <thead>
+            <th scope="col">#</th>
+            <th scope="col">line</th>
+            <th scope="col">field</th>
+            <th scope="col">error</th>
+          </thead>
+          <tbody>
+            {% for error in object.list_errors %}
+              <tr>
+                <td class="align-middle">{{ forloop.parentloop.counter }}</td>
+                <td class="align-middle">{{ error.line }}</td>
+                <td class="align-middle">{{ error.field }}</td>
+                <td>{{ error.message }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+</div><!-- /.row-fluid -->
 
 {% endblock %}
