@@ -100,8 +100,15 @@ class CsvModel(object):
         if hasattr(error, 'message_dict'):
             # message_dict attribute exists on ValidationError
             # when a dict is sent during error creation
-            field = list(error.message_dict.keys())[0]
-            message = error.message_dict[field][0]
+            for field, message in error.message_dict.items():
+                err_dict = {
+                    'line': line_number,
+                    'field': field,
+                    'message': ', '.join(message)
+                }
+                self.errors.append(err_dict)
+                return
+
         elif hasattr(error, 'message'):
             message = error.message
         else:
@@ -292,7 +299,6 @@ class ReadRow(object):
         data = {}
         if not self.line: return
         if self.not_create_model(): return
-
         for csv_fieldname, field in self.fields.items():
             model_fieldname = self.mapping[csv_fieldname]
             try:
@@ -339,8 +345,15 @@ class ReadRow(object):
         if hasattr(error, 'message_dict'):
             # message_dict attribute exists on ValidationError
             # when a dict is sent during error creation
-            field = list(error.message_dict.keys())[0]
-            message = error.message_dict[field][0]
+            for field, message in error.message_dict.items():
+                err_dict = {
+                    'line': line_number,
+                    'field': field,
+                    'message': ', '.join(message)
+                }
+                self.errors.append(err_dict)
+                return
+
         elif hasattr(error, 'message'):
             message = error.message
         else:
