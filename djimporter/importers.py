@@ -97,12 +97,13 @@ class CsvModel(object):
         return match
 
     def add_error(self, line_number, field, error):
-        #import pudb; pu.db
         if hasattr(error, 'message_dict'):
             # message_dict attribute exists on ValidationError
             # when a dict is sent during error creation
             field = list(error.message_dict.keys())[0]
             message = error.message_dict[field][0]
+        elif hasattr(error, 'message'):
+            message = error.message
         else:
             message = str(error)
         err_dict = {
@@ -340,6 +341,8 @@ class ReadRow(object):
             # when a dict is sent during error creation
             field = list(error.message_dict.keys())[0]
             message = error.message_dict[field][0]
+        elif hasattr(error, 'message'):
+            message = error.message
         else:
             message = str(error)
         err_dict = {
