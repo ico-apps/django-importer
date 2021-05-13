@@ -299,7 +299,7 @@ class ReadRow(object):
                 # handle the error here because we know which is the
                 # invalid field and we want to provide this info to
                 # the user.
-                self.add_error(self.line_number, csv_fieldname, str(error))
+                self.add_error(self.line_number, csv_fieldname, error)
                 raise
 
         self.data = data
@@ -314,7 +314,7 @@ class ReadRow(object):
             self.object.full_clean()
         except ValidationError as e:
             fields = list(e.message_dict.keys())[0]
-            self.add_error(self.line_number, fields, e.message_dict)
+            self.add_error(self.line_number, fields, e)
 
     def save(self):
         if self.errors: return self.errors
@@ -325,10 +325,11 @@ class ReadRow(object):
         self.object.save()
 
     def add_error(self, line_number, field, error):
-        if isinstance(error, dict):
-            message = str(error)
-        elif isinstance(error, list):
-            message = str(error)
+        if hasattr(error, 'message_dict'):
+            # message_dict attribute exists on ValidationError
+            # when a dict is sent during error creation
+            field = list(error.message_dict.keys())[0]
+            message = error.message_dict[field][0]
         else:
             message = str(error)
         err_dict = {
@@ -357,7 +358,7 @@ class ReadRow(object):
         #   e.g. missing required context
         except (ValidationError, ValueError, KeyError, ObjectDoesNotExist, DatabaseError) as error:
             file_name = os.path.split(f.__name__)[-1]
-            self.add_error(self.line_number, file_name, str(error))
+            self.add_error(self.line_number, file_name, error)
 
     def pre_save(self):
         if not hasattr(self.Meta, 'pre_save'): return
