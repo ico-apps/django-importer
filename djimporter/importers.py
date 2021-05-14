@@ -17,8 +17,40 @@ class MetaFieldException(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
 
+class ErrorMixin(object):
+    def add_error(self, line_number, field, error):
+        if hasattr(error, 'message_dict'):
+            # message_dict attribute exists on ValidationError
+            # when a dict is sent during error creation
+            for field, message in error.message_dict.items():
+                field = self.get_csv_field(field)
+                self.errors.append(
+                    self.build_err_dict(line_number, field, ', '.join(message))
+                )
+                return
 
-class CsvModel(object):
+        elif hasattr(error, 'messages'):
+            message = ', '.join(error.messages)
+        else:
+            message = str(error)
+        self.errors.append(self.build_err_dict(line_number, field, message))
+
+    def get_csv_field(self, field):
+        for csv_field, real_field in self.mapping.items():
+            if field == real_field:
+                return csv_field
+        return field
+
+    @staticmethod
+    def build_err_dict(line_number, field, message):
+        return {
+            'line': line_number,
+            'field': field,
+            'message': message
+        }
+
+
+class CsvModel(ErrorMixin):
 
     def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None):
         self.file = csvfile
@@ -95,34 +127,6 @@ class CsvModel(object):
                 match[k] = k
 
         return match
-
-    def add_error(self, line_number, field, error):
-        if hasattr(error, 'message_dict'):
-            # message_dict attribute exists on ValidationError
-            # when a dict is sent during error creation
-            for field, message in error.message_dict.items():
-                for csv_field, real_field in self.mapping.items():
-                    if field == real_field:
-                        field = csv_field
-                        break
-                err_dict = {
-                    'line': line_number,
-                    'field': field,
-                    'message': ', '.join(message)
-                }
-                self.errors.append(err_dict)
-                return
-
-        elif hasattr(error, 'messages'):
-            message = ', '.join(error.messages)
-        else:
-            message = str(error)
-        err_dict = {
-            'line': line_number,
-            'field': field,
-            'message': message
-        }
-        self.errors.append(err_dict)
 
     def get_dict_error(self):
         if self.dict_error:
@@ -258,7 +262,7 @@ class CsvModel(object):
                 l_unique_together[t] = None
 
 
-class ReadRow(object):
+class ReadRow(ErrorMixin):
     """
     This class build a object from the datas to a row
     """
@@ -347,34 +351,6 @@ class ReadRow(object):
             return
 
         self.object.save()
-
-    def add_error(self, line_number, field, error):
-        if hasattr(error, 'message_dict'):
-            # message_dict attribute exists on ValidationError
-            # when a dict is sent during error creation
-            for field, message in error.message_dict.items():
-                for csv_field, real_field in self.mapping.items():
-                    if field == real_field:
-                        field = csv_field
-                        break
-                err_dict = {
-                    'line': line_number,
-                    'field': field,
-                    'message': ', '.join(message)
-                }
-                self.errors.append(err_dict)
-                return
-
-        elif hasattr(error, 'messages'):
-            message = ', '.join(error.messages)
-        else:
-            message = str(error)
-        err_dict = {
-            'line': line_number,
-            'field': field,
-            'message': message
-        }
-        self.errors.append(err_dict)
 
     def get_unique_together(self):
         if not self.line: return
