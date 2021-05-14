@@ -101,6 +101,10 @@ class CsvModel(object):
             # message_dict attribute exists on ValidationError
             # when a dict is sent during error creation
             for field, message in error.message_dict.items():
+                for csv_field, real_field in self.mapping.items():
+                    if field == real_field:
+                        field = csv_field
+                        break
                 err_dict = {
                     'line': line_number,
                     'field': field,
@@ -349,6 +353,10 @@ class ReadRow(object):
             # message_dict attribute exists on ValidationError
             # when a dict is sent during error creation
             for field, message in error.message_dict.items():
+                for csv_field, real_field in self.mapping.items():
+                    if field == real_field:
+                        field = csv_field
+                        break
                 err_dict = {
                     'line': line_number,
                     'field': field,
