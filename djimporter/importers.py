@@ -23,7 +23,7 @@ class ErrorMixin(object):
             # message_dict attribute exists on ValidationError
             # when a dict is sent during error creation
             for field, message in error.message_dict.items():
-                field = self.get_csv_field(field)
+                field = self.get_csv_field(field).replace('__all__', 'all fields')
                 self.errors.append(
                     self.build_err_dict(line_number, field, ', '.join(message))
                 )
@@ -33,7 +33,7 @@ class ErrorMixin(object):
             message = ', '.join(error.messages)
         else:
             message = str(error)
-        self.errors.append(self.build_err_dict(line_number, field, message))
+        self.errors.append(self.build_err_dict(line_number, field.replace('__all__', 'all fields'), message))
 
     def get_csv_field(self, field):
         for csv_field, real_field in self.mapping.items():
