@@ -27,7 +27,7 @@ class ErrorMixin(object):
                 self.errors.append(
                     self.build_err_dict(line_number, field, ', '.join(message))
                 )
-                return
+            return
 
         elif hasattr(error, 'messages'):
             message = ', '.join(error.messages)
@@ -132,7 +132,7 @@ class CsvModel(ErrorMixin):
         if self.dict_error:
             return self.dict_error
 
-        msg = _("the head field '%s' not do match")
+        msg = _("Header field '%s' is wrong")
         self.dict_error = {i: (msg % i) for i in self.get_user_visible_fields()}
         return self.dict_error
 
@@ -197,7 +197,8 @@ class CsvModel(ErrorMixin):
                 errors.update({f: _(self.get_dict_error()[f])})
 
         if errors:
-            self.add_error(1, 'header', errors)
+            error = ValidationError(errors)
+            self.add_error(1, 'header', error)
             return False
         return True
 
