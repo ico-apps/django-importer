@@ -42,6 +42,7 @@ class CsvModel(object):
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
         self.not_create_model = hasattr(self.Meta, 'create_model') and not self.Meta.create_model
         self.validate_unique = not hasattr(self.Meta, 'unique_together')
+        self.exclude_fields = self.Meta.exclude_fields if hasattr(self.Meta, 'exclude_fields') else None
 
     def get_user_visible_fields(self):
         # extra fields is used to capture the names of the columns used in the pre_save and
@@ -209,7 +210,8 @@ class CsvModel(object):
             'meta': self.Meta,
             'fields': self.fields,
             'mapping': self.mapping,
-            'validate_unique': self.validate_unique
+            'validate_unique': self.validate_unique,
+            'exclude_fields': self.exclude_fields
         }
         new_obj = ReadRow(**data)
 
@@ -244,7 +246,7 @@ class ReadRow(object):
     """
 
     def __init__(self, fields=None, mapping=None, meta=None, context=None,
-                 line=None, line_number=None, validate_unique=True):
+                 line=None, line_number=None, validate_unique=True, exclude_fields=None):
         self.Meta = meta
         self.fields = fields
         self.mapping = mapping
@@ -252,6 +254,7 @@ class ReadRow(object):
         self.line = line
         self.line_number = line_number
         self.validate_unique = validate_unique
+        self.exclude_fields = exclude_fields
 
         self.data = None
         self.object = None
@@ -314,7 +317,10 @@ class ReadRow(object):
     def validate(self):
         if not self.object: return
         try:
-            self.object.full_clean(validate_unique=self.validate_unique)
+            self.object.clean_fields(exclude=self.exclude_fields)
+            self.object.clean()
+            if self.validate_unique:
+                self.object.validate_unique()
         except ValidationError as e:
             fields = list(e.message_dict.keys())[0]
             self.add_error(self.line_number, fields, e.message_dict)
