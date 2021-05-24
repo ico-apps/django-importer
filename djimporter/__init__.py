@@ -1,7 +1,7 @@
 """
 Package metadata definition.
 """
-VERSION = (0, 1, 0, 'final', 0)
+VERSION = (0, 2, 0, 'alpha', 0)
 
 
 default_app_config = 'djimporter.apps.ImporterConfig'
