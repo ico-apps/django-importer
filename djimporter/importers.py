@@ -42,7 +42,7 @@ class CsvModel(object):
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
         self.not_create_model = hasattr(self.Meta, 'create_model') and not self.Meta.create_model
         self.validate_unique = not hasattr(self.Meta, 'unique_together')
-        self.exclude_fields = self.Meta.exclude_fields if hasattr(self.Meta, 'exclude_fields') else None
+        self.exclude_fields = getattr(self.Meta, 'exclude_fields', None)
 
     def get_user_visible_fields(self):
         # extra fields is used to capture the names of the columns used in the pre_save and
