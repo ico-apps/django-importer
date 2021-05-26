@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## master
 
+## [0.2.0] - 2021-05-26
+- [changed] Show human-friendly error messages.
+- [changed] Optimize speed.
+
 ## [0.1.0] - 2021-05-10
 - [added] Support passing delimiter and headers mapping as parameters.
 
