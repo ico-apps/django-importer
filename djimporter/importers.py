@@ -17,8 +17,40 @@ class MetaFieldException(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
 
+class ErrorMixin(object):
+    def add_error(self, line_number, field, error):
+        if hasattr(error, 'message_dict'):
+            # message_dict attribute exists on ValidationError
+            # when a dict is sent during error creation
+            for field, message in error.message_dict.items():
+                field = self.get_csv_field(field).replace('__all__', 'all fields')
+                self.errors.append(
+                    self.build_err_dict(line_number, field, ', '.join(message))
+                )
+            return
 
-class CsvModel(object):
+        elif hasattr(error, 'messages'):
+            message = ', '.join(error.messages)
+        else:
+            message = str(error)
+        self.errors.append(self.build_err_dict(line_number, field.replace('__all__', 'all fields'), message))
+
+    def get_csv_field(self, field):
+        for csv_field, real_field in self.mapping.items():
+            if field == real_field:
+                return csv_field
+        return field
+
+    @staticmethod
+    def build_err_dict(line_number, field, message):
+        return {
+            'line': line_number,
+            'field': field,
+            'message': message
+        }
+
+
+class CsvModel(ErrorMixin):
 
     def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None):
         self.file = csvfile
@@ -96,17 +128,11 @@ class CsvModel(object):
 
         return match
 
-    def add_error(self, line, field, error):
-        err_dict = {'line': line,
-                    'error': {field: error}
-                    }
-        self.errors.append(err_dict)
-
     def get_dict_error(self):
         if self.dict_error:
             return self.dict_error
 
-        msg = _("the head field '%s' not do match")
+        msg = _("Header field '%s' is wrong")
         self.dict_error = {i: (msg % i) for i in self.get_user_visible_fields()}
         return self.dict_error
 
@@ -171,7 +197,8 @@ class CsvModel(object):
                 errors.update({f: _(self.get_dict_error()[f])})
 
         if errors:
-            self.add_error(1, 'header', errors)
+            error = ValidationError(errors)
+            self.add_error(1, 'header', error)
             return False
         return True
 
@@ -228,15 +255,15 @@ class CsvModel(object):
             # unique_together
             t = i.unique_together
             if t in l_unique_together:
-                msg = "These fields %s must be unique together values %s"
-                msg = msg % (self.Meta.unique_together, t)
-                err = {'unique': msg}
+                msg = "Combination of %s %s is repeated."
+                msg = msg % (', '.join(self.Meta.unique_together), t)
+                err = ValidationError({'unique': msg}, code='invalid')
                 self.add_error(i.line_number, 'unique', err)
             else:
                 l_unique_together[t] = None
 
 
-class ReadRow(object):
+class ReadRow(ErrorMixin):
     """
     This class build a object from the datas to a row
     """
@@ -281,7 +308,6 @@ class ReadRow(object):
         data = {}
         if not self.line: return
         if self.not_create_model(): return
-
         for csv_fieldname, field in self.fields.items():
             model_fieldname = self.mapping[csv_fieldname]
             try:
@@ -299,7 +325,7 @@ class ReadRow(object):
                 # handle the error here because we know which is the
                 # invalid field and we want to provide this info to
                 # the user.
-                self.add_error(self.line_number, csv_fieldname, str(error))
+                self.add_error(self.line_number, csv_fieldname, error)
                 raise
 
         self.data = data
@@ -313,8 +339,11 @@ class ReadRow(object):
         try:
             self.object.full_clean()
         except ValidationError as e:
-            fields = list(e.message_dict.keys())[0]
-            self.add_error(self.line_number, fields, e.message_dict)
+            field = list(e.message_dict.keys())[0]
+            # Only print errors if field is related to uploaded file,
+            # but if no errors added, add error to prevent a valid file when it isn't
+            if field in list(self.mapping.values()) or len(self.errors) == 0:
+                self.add_error(self.line_number, field, e)
 
     def save(self):
         if self.errors: return self.errors
@@ -323,12 +352,6 @@ class ReadRow(object):
             return
 
         self.object.save()
-
-    def add_error(self, line_number, field, error):
-        err_dict = {'line': line_number,
-                    'error': {field: error}
-                    }
-        self.errors.append(err_dict)
 
     def get_unique_together(self):
         if not self.line: return
@@ -349,7 +372,7 @@ class ReadRow(object):
         #   e.g. missing required context
         except (ValidationError, ValueError, KeyError, ObjectDoesNotExist, DatabaseError) as error:
             file_name = os.path.split(f.__name__)[-1]
-            self.add_error(self.line_number, file_name, str(error))
+            self.add_error(self.line_number, file_name, error)
 
     def pre_save(self):
         if not hasattr(self.Meta, 'pre_save'): return
