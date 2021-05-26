@@ -58,8 +58,17 @@
               <tr>
                 <td class="align-middle">{{ forloop.counter }}</td>
                 <td class="align-middle">{{ error.line }}</td>
-                <td class="align-middle">{{ error.field }}</td>
-                <td>{{ error.message }}</td>
+                {% if error.message %}
+                  <td class="align-middle">{{ error.field }}</td>
+                  <td>{{ error.message }}</td>
+                {% else %}
+                  {% for field, details in error.error.items %}
+                    {% if forloop.first %}
+                      <td class="align-middle">{{ field }}</td>
+                      <td>{{ details }}</td>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
               </tr>
             {% endfor %}
           </tbody>
