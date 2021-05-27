@@ -62,6 +62,10 @@
                   <td class="align-middle">{{ error.field }}</td>
                   <td>{{ error.message }}</td>
                 {% else %}
+                  {% comment %}
+                    Support showing legacy errors
+                    created by djimporter in versions <= 0.1.0
+                  {% endcomment %}
                   {% for field, details in error.error.items %}
                     {% if forloop.first %}
                       <td class="align-middle">{{ field }}</td>
