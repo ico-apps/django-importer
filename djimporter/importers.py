@@ -52,10 +52,11 @@ class ErrorMixin(object):
 
 class CsvModel(ErrorMixin):
 
-    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None):
+    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, log=None):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
+        self.log = log
 
         self.errors = []
         self.list_tasks = []

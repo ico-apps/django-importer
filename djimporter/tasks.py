@@ -24,7 +24,9 @@ def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, he
     log.save()
 
     # run importer
-    importer = importer_class(csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping)
+    importer = importer_class(
+        csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping, log=log
+    )
     importer.is_valid()
     importer.save()
 
