@@ -87,12 +87,7 @@ class ImportFormView(FormView):
 
     def create_import_task(self, csv_file, delimiter=None, headers_mapping=None):
         importer_class = self.get_importer_class()
-
-        task_log = ImportLog.objects.create(
-            status=ImportLog.CREATED,
-            user=str(self.request.user),
-            input_file=csv_file.name,
-        )
+        task_log = self.create_import_log(csv_file)
 
         # save file to persistent storage
         name = os.path.join(settings.MEDIA_ROOT, csv_file.name)
@@ -107,6 +102,14 @@ class ImportFormView(FormView):
         run_importer(dotted_path, csv_path, task_log.id, context=context,
                      delimiter=delimiter, headers_mapping=headers_mapping)
 
+        return task_log
+
+    def create_import_log(self, csv_file):
+        task_log = ImportLog.objects.create(
+            status=ImportLog.CREATED,
+            user=str(self.request.user),
+            input_file=csv_file.name,
+        )
         return task_log
 
     def get_importer_class(self):
