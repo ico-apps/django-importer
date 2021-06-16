@@ -17,6 +17,7 @@ class MetaFieldException(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
 
+
 class ErrorMixin(object):
     def add_error(self, line_number, field, error):
         if hasattr(error, 'message_dict'):
