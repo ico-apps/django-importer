@@ -2,8 +2,6 @@ import json
 import os
 
 from django.utils.module_loading import import_string
-from django.db.transaction import TransactionManagementError
-from django.db import transaction
 from background_task import background
 
 from . import get_importlog_model
@@ -24,19 +22,27 @@ def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, he
     log.save()
 
     # run importer
-    importer = importer_class(
-        csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping, log=log
-    )
-    importer.is_valid()
-    importer.save()
+    try:
+        importer = importer_class(
+            csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping, log=log
+        )
+        importer.is_valid()
+        importer.save()
 
-    # update log with import result
-    if importer.errors:
+        # update log with import result
+        if importer.errors:
+            log.status = ImportLog.FAILED
+            log.errors = json.dumps(importer.errors)
+        else:
+            log.status = ImportLog.COMPLETED
+            log.num_rows = len(importer.list_objs)
+
+    except Exception as e:
+        # Not controlled errors will be thrown to log
+        errors = [{'line': 1, 'field': 'Internal Error', 'message': e.args}]
         log.status = ImportLog.FAILED
-        log.errors = json.dumps(importer.errors)
-    else:
-        log.status = ImportLog.COMPLETED
-        log.num_rows = len(importer.list_objs)
+        log.errors = json.dumps(errors)
+
     log.save()
 
     # clean up
