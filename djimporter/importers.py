@@ -8,6 +8,7 @@ import os
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import DatabaseError, transaction
 from django.utils.translation import gettext as _
+from magic import Magic
 
 
 class MetaFieldException(Exception):
@@ -139,7 +140,9 @@ class CsvModel(ErrorMixin):
         return self.dict_error
 
     def open_file(self, path):
-        txt = open(path).read()
+        me = Magic(mime_encoding=True)
+        enc = me.from_file(path)
+        txt = open(path, encoding=enc).read()
         csv = bytes(txt, encoding='utf-8')
         return io.BytesIO(csv)
 
