@@ -23,12 +23,5 @@ cp docs/config/supervisord.conf
 /etc/supervisor/supervisord.conf
 ```
 
-In this file you have to change the command path
-command= in the appropriate path where the initialization file is.
+In this file you have to change ```command=``` setting your virtualenv path and your project path.
 
-Finally you have to go to the file:
-***
-monitoring/cmd/start.sh
-***
-
-and modify the **HOME_PROJECT** variable accordingly. Notice that it depends on the **$HOME** variable and the user that is defined in supervisord.conf is www-data, so that variable will send us to a different place from where the project resides. That is why we have to correctly choose the place where we host the project or modify HOME_PROJECT correctly.
