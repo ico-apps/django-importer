@@ -76,9 +76,14 @@ class CsvModel(ErrorMixin):
         self.post_save = hasattr(self.Meta, 'post_save')
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
         self.not_create_model = hasattr(self.Meta, 'create_model') and not self.Meta.create_model
+        self.unique_together = hasattr(self.Meta, 'unique_together')
         self.validate_unique = not hasattr(self.Meta, 'unique_together')
         self.append_mode = hasattr(self.Meta, 'append_mode')
         self.exclude_fields = getattr(self.Meta, 'exclude_fields', None)
+
+        assert not (self.unique_together and self.append_mode and self.Meta.append_mode), (
+            "Cannot set both 'unique_together' and 'append_mode' attributes: append mode will not work."
+        )
 
     def get_user_visible_fields(self):
         # extra fields is used to capture the names of the columns used in the pre_save and
