@@ -78,10 +78,10 @@ class CsvModel(ErrorMixin):
         self.not_create_model = hasattr(self.Meta, 'create_model') and not self.Meta.create_model
         self.unique_together = hasattr(self.Meta, 'unique_together')
         self.validate_unique = not hasattr(self.Meta, 'unique_together')
-        self.append_mode = hasattr(self.Meta, 'append_mode')
+        self.append_mode = getattr(self.Meta, 'append_mode', False)
         self.exclude_fields = getattr(self.Meta, 'exclude_fields', None)
 
-        assert not (self.unique_together and self.append_mode and self.Meta.append_mode), (
+        assert not (self.unique_together and self.append_mode), (
             "Cannot set both 'unique_together' and 'append_mode' attributes: append mode will not work."
         )
 
