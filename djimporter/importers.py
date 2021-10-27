@@ -76,8 +76,14 @@ class CsvModel(ErrorMixin):
         self.post_save = hasattr(self.Meta, 'post_save')
         self.has_save = hasattr(self.Meta, 'save') and self.Meta.save
         self.not_create_model = hasattr(self.Meta, 'create_model') and not self.Meta.create_model
+        self.unique_together = hasattr(self.Meta, 'unique_together')
         self.validate_unique = not hasattr(self.Meta, 'unique_together')
+        self.append_mode = getattr(self.Meta, 'append_mode', False)
         self.exclude_fields = getattr(self.Meta, 'exclude_fields', None)
+
+        assert not (self.unique_together and self.append_mode), (
+            "Cannot set both 'unique_together' and 'append_mode' attributes: append mode will not work."
+        )
 
     def get_user_visible_fields(self):
         # extra fields is used to capture the names of the columns used in the pre_save and
@@ -243,13 +249,15 @@ class CsvModel(ErrorMixin):
             'fields': self.fields,
             'mapping': self.mapping,
             'validate_unique': self.validate_unique,
+            'append_mode': self.append_mode,
             'exclude_fields': self.exclude_fields
         }
         new_obj = ReadRow(**data)
 
         if new_obj.errors:
             self.errors.extend(new_obj.errors)
-        self.list_objs.append(new_obj)
+        if not new_obj.skip:
+            self.list_objs.append(new_obj)
 
     def validate_in_file(self):
         # TODO(@slamora) optimize using Counter???
@@ -278,7 +286,8 @@ class ReadRow(ErrorMixin):
     """
 
     def __init__(self, fields=None, mapping=None, meta=None, context=None,
-                 line=None, line_number=None, validate_unique=True, exclude_fields=None):
+                 line=None, line_number=None, validate_unique=True, append_mode=False,
+                 exclude_fields=None):
         self.Meta = meta
         self.fields = fields
         self.mapping = mapping
@@ -286,10 +295,12 @@ class ReadRow(ErrorMixin):
         self.line = line
         self.line_number = line_number
         self.validate_unique = validate_unique
+        self.append_mode = append_mode
         self.exclude_fields = exclude_fields
 
         self.data = None
         self.object = None
+        self.skip = False
         self.errors = []
 
         self.secuence()
@@ -350,14 +361,23 @@ class ReadRow(ErrorMixin):
         try:
             self.object.clean_fields(exclude=self.exclude_fields)
             self.object.clean()
-            if self.validate_unique:
-                self.object.validate_unique()
+            self.unique_validation()
         except ValidationError as e:
             field = list(e.message_dict.keys())[0]
             # Only print errors if field is related to uploaded file,
             # but if no errors added, add error to prevent a valid file when it isn't
             if field in list(self.mapping.values()) or len(self.errors) == 0:
                 self.add_error(self.line_number, field, e)
+
+    def unique_validation(self):
+        if self.validate_unique:
+            try:
+                self.object.validate_unique()
+            except ValidationError as e:
+                if self.append_mode:
+                    self.skip = True
+                else:
+                    raise e
 
     def save(self):
         if self.errors: return self.errors
