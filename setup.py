@@ -21,7 +21,7 @@ setup(
     url='https://github.com/ico-apps/django-importer',
     author='ICO - Institut Catala Ornitologia',
     author_email='ico@ornitologia.org',
-    description='Ornithology oriented monitoring data management tool',
+    description='Django importer, another CSV import library.',
     long_description=('Django importer, another CSV import library.'),
     license='BSD-3-Clause',
     packages=find_packages(),
