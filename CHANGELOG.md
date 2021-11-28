@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## master
 
+## [0.3.0] - 2021-11-28
+- [added] `log` attribute to CSV models.
+- [added] Implement append mode. If enabled, existing objects will be ignored.
+- [fixed] #14 Detect CSV file encoding.
+- [fixed] #43 Handle unexpected errors.
+
 ## [0.2.0] - 2021-05-26
 - [changed] Show human-friendly error messages.
 - [changed] Optimize speed.
