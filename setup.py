@@ -1,10 +1,15 @@
 import os
+from distutils.util import convert_path
 
 from setuptools import find_packages, setup
 
 
-# Dynamically calculate the version
-version = __import__('djimporter').get_version()
+main_ns = {}
+ver_path = convert_path('djimporter/__init__.py')
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), main_ns)
+
+version = main_ns['get_version']()
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
@@ -18,16 +23,17 @@ setup(
     author_email='ico@ornitologia.org',
     description='Ornithology oriented monitoring data management tool',
     long_description=('Django importer, another CSV import library.'),
-    # TODO license = 'XXX License',
+    license='BSD-3-Clause',
     packages=find_packages(),
     include_package_data=True,
     install_requires=["django>=2.2", "django-background-tasks==1.2.5", "python-magic==0.4.24"],
     zip_safe=False,
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Framework :: Django :: 2.2',
+        'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
