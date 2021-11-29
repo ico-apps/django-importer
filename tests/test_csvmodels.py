@@ -36,6 +36,43 @@ class SlugFieldMapping(TestCase):
         self.assertFalse(importer.is_valid())
 
 
+class CachedSlugFieldTest(TestCase):
+    def test_valid(self):
+        ForeignKeyTarget.objects.bulk_create([
+            ForeignKeyTarget(name='bar'),
+            ForeignKeyTarget(name='bar2'),
+        ])
+
+        class ForeignKeySourceCsv(importers.CsvModel):
+            target = fields.CachedSlugRelatedField(
+                queryset=ForeignKeyTarget.objects.all(), slug_field='name')
+
+            class Meta:
+                dbModel = ForeignKeySource
+                fields = ('name', 'target')
+
+        csv_path = os.path.join(TESTDATA_DIR, 'ForeignKeySource_valid.csv')
+        importer = ForeignKeySourceCsv(csv_path)
+
+        self.assertTrue(importer.is_valid(), importer.errors)
+
+    def test_invalid_missing_required_target_value(self):
+        ForeignKeyTarget.objects.create(name='bar')
+
+        class ForeignKeySourceCsv(importers.CsvModel):
+            target = fields.CachedSlugRelatedField(
+                queryset=ForeignKeyTarget.objects.all(), slug_field='name')
+
+            class Meta:
+                dbModel = ForeignKeySource
+                fields = ('name', 'target')
+
+        csv_path = os.path.join(TESTDATA_DIR, 'ForeignKeySource.csv')
+        importer = ForeignKeySourceCsv(csv_path)
+
+        self.assertFalse(importer.is_valid())
+
+
 class DateFieldTest(TestCase):
     def test_unexpected_date_format(self):
         created = fields.DateField()
