@@ -84,41 +84,49 @@ Assuming we have the following django models:
 ```
 from django.db import models
 
+
 class Musician(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     instrument = models.CharField(max_length=100)
 
+
 class Album(models.Model):
-    artist = models.ForeignKey(Musician, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     release_date = models.DateField()
     num_stars = models.IntegerField()
+    artist = models.ForeignKey(Musician, on_delete=models.CASCADE)
 ```
 
 Our csv data in a file are like this:
 
 
 ```
-first_name;surname;release_date;num_stars;name
-Schmith;Susan;2000-01-01;5;aaa
-Wolf;Johan;2001-01-01;4;bbb
+name;artist;release_date;num_stars
+aaa;Susan Schmith;2000-01-01;5
+bbb;Johan Wolf;2001-01-01;4
 ```
 
 In this case we will define our csvmodel in this way:
 
 ```
 class AlbumCsv(importers.CsvModel):
-    first_name = fields.SlugRelatedField(match="artist", slug_field="musician__first_name")
+    artist = fields.SlugRelatedField(slug_field="name", queryset=Musician.objects.all())
 
     class Meta:
         delimiter = ';'
         dbModel = Album
-        fields = ['name', 'release_date', 'num_stars', 'first_name']
+        fields = ['name', 'release_date', 'num_stars', 'artist']
 ```
 
-Here we see that the field **SlugRelatedField** allows us to find the object by means of the
-parameter **slug_field**
+Here we see that the field **SlugRelatedField** allows us to find the object through the
+field **slug_field**.
+**NOTE**: field defined as `slug_field` must be unique.
+
+
+### CachedSlugRelatedField
+Similar usage than `SlugRelatedField` but caching queryset in **memory** to optimize performance.
+On the previous example just replace `SlugRelatedField` with `CachedSlugRelatedField`.
+
 
 ## ForeignKey with more than one column:
 There are some cases where we need to find an object that will be a ForeingKey of our Django model.
