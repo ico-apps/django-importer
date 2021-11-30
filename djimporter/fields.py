@@ -259,6 +259,37 @@ class SlugRelatedField(Field):
             raise ValidationError(e, code='invalid')
 
 
+class CachedSlugRelatedField(Field):
+    """
+    SlugRelatedField which caches queryset on memory to boost importer speed.
+
+    It performs a single "big" database query instead of N "small" queries
+    where N is the number of rows to be imported.
+    """
+    def __init__(self, *args, null=False, **kwargs):
+        queryset = kwargs.pop('queryset')
+        slug_field = kwargs.pop('slug_field')
+
+        self.slug_field = slug_field
+        self.model = queryset.model
+
+        # NOTE: cast to str dict key because CSV value by default its a string
+        self.queryset = {
+            str(getattr(obj, slug_field)): obj for obj in queryset
+        }
+
+        super().__init__(*args, null=null, **kwargs)
+
+    def to_python(self, value):
+        value = value.strip()
+        try:
+            return self.queryset[value]
+        except KeyError:
+            msg = "No match found for '%(model)s' with value '%(value)s' on field '%(slug)s'"
+            params = {'model': self.model.__name__, 'value': value, 'slug': self.slug_field}
+            raise ValidationError(msg, params=params, code='invalid')
+
+
 class RelatedFromUniquesField(SlugRelatedField):
     # overwrite SlugRelatedField for du a query more complex
     # from fields of unique together
