@@ -1,6 +1,3 @@
-import os
-
-from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -90,8 +87,8 @@ class ImportFormView(FormView):
         task_log = self.create_import_log(csv_file)
 
         # save file to persistent storage
-        name = os.path.join(settings.MEDIA_ROOT, csv_file.name)
-        csv_path = default_storage.save(name, csv_file)
+        name = default_storage.save(csv_file.name, csv_file)
+        csv_path = default_storage.path(name)
 
         dotted_path = "{module}.{name}".format(
             module=importer_class.__module__,
