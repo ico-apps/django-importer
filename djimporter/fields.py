@@ -270,20 +270,22 @@ class CachedSlugRelatedField(Field):
         queryset = kwargs.pop('queryset')
         slug_field = kwargs.pop('slug_field')
 
+        self.queryset = queryset
         self.slug_field = slug_field
         self.model = queryset.model
-
-        # NOTE: cast to str dict key because CSV value by default its a string
-        self.queryset = {
-            str(getattr(obj, slug_field)): obj for obj in queryset
-        }
 
         super().__init__(*args, null=null, **kwargs)
 
     def to_python(self, value):
+        if not hasattr(self, 'cached_queryset'):
+            # NOTE: cast to str dict key because CSV value by default its a string
+            self.cached_queryset = {
+                str(getattr(obj, self.slug_field)): obj for obj in self.queryset
+            }
+
         value = value.strip()
         try:
-            return self.queryset[value]
+            return self.cached_queryset[value]
         except KeyError:
             msg = "No match found for '%(model)s' with value '%(value)s' on field '%(slug)s'"
             params = {'model': self.model.__name__, 'value': value, 'slug': self.slug_field}
