@@ -1,1 +1,1 @@
-include djimporter/templates/*
+include djimporter/templates/djimporter/*.html
