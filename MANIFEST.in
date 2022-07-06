@@ -1,1 +1,8 @@
-include djimporter/templates/djimporter/*.html
+include LICENSE
+include MANIFEST.in
+include *.md
+graft djimporter
+graft docs
+graft tests
+global-exclude __pycache__
+global-exclude *.py[co]
