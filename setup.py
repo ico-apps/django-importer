@@ -24,9 +24,10 @@ setup(
     description='Django importer, another CSV import library.',
     long_description=('Django importer, another CSV import library.'),
     license='BSD-3-Clause',
-    packages=find_packages(),
+    packages=find_packages(where="djimporter"),
+    package_dir={"": "djimporter"},
     include_package_data=True,
-    install_requires=["django>=2.2", "django-background-tasks==1.2.5", "python-magic==0.4.24"],
+    install_requires=["django>=2.2,<4.0", "django-background-tasks==1.2.5", "python-magic==0.4.24"],
     zip_safe=False,
     classifiers=[
         'Development Status :: 4 - Beta',
