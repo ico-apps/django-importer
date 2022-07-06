@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## master
 
+## [0.4.0] - 2022-07-06
+- [added] #48 CachedSlugRelatedField: optimize DB queries (1 big vs N small)
+- [fixed] #49 CachedSlugRelatedField produces cross dependencies
+- [fixed] #51 Build setup config.
+
 ## [0.3.0] - 2021-11-28
 - [added] `log` attribute to CSV models.
 - [added] Implement append mode. If enabled, existing objects will be ignored.
