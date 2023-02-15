@@ -75,6 +75,8 @@ class ImportFormView(FormView):
         if 'delimiter' in form.cleaned_data:
             kwargs['delimiter'] = form.cleaned_data['delimiter']
 
+        print(form.cleaned_data['delimiter'])
+
         if len(header_mapping) > 0:
             kwargs['headers_mapping'] = header_mapping
 
