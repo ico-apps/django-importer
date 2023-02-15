@@ -6,7 +6,7 @@ from django.views.generic.edit import FormView, DeleteView
 from django.views.generic.list import ListView
 
 from . import get_importlog_model
-from .forms import CsvImportForm
+from .forms import CsvImportForm, UploadDataCsvGuessForm
 from .tasks import run_importer
 
 ImportLog = get_importlog_model()
@@ -128,3 +128,22 @@ class ImportFormView(FormView):
 
     def get_success_url(self):
         return reverse('djimporter:importlog-detail', kwargs={'pk': self.task_log.id})
+
+
+
+class ImportBaseGuessCsvView(ImportFormView):
+    form_class = UploadDataCsvGuessForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        headers = self.importer_class.Meta.fields.copy()
+        if hasattr(self.importer_class.Meta, 'extra_fields'):
+            headers.extend(self.importer_class.Meta.extra_fields)
+
+        kwargs.update({
+            'headers': headers
+        })
+        return kwargs
+
+
