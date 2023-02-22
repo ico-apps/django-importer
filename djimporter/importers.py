@@ -103,6 +103,9 @@ class CsvModel(ErrorMixin):
 
         return head
 
+    def get_delimiter(self):
+        return self.delimiter
+
     def get_fields(self):
         """
         Only get the names than exist in the field
