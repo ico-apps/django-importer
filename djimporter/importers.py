@@ -101,7 +101,6 @@ class CsvModel(ErrorMixin):
 
             head.append(f)
 
-        print(head)
         return head
 
     def get_delimiter(self):
