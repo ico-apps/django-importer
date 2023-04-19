@@ -129,11 +129,6 @@ class ImportFormView(FormView):
     def get_success_url(self):
         return reverse('djimporter:importlog-detail', kwargs={'pk': self.task_log.id})
 
-
-
-class ImportBaseGuessCsvView(ImportFormView):
-    form_class = UploadDataCsvGuessForm
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
@@ -144,6 +139,6 @@ class ImportBaseGuessCsvView(ImportFormView):
         kwargs.update({
             'headers': headers
         })
-        return kwargs
+        return kwargs    
 
 
