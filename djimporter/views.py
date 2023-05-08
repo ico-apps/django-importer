@@ -86,7 +86,7 @@ class ImportFormView(FormView):
 
         return HttpResponseRedirect(self.get_success_url())
 
-    def create_import_task(self, csv_file, delimiter=None, headers_mapping=None):
+    def create_import_task(self, csv_file, **kwargs):
         importer_class = self.get_importer_class()
         task_log = self.create_import_log(csv_file)
 
@@ -98,6 +98,9 @@ class ImportFormView(FormView):
             module=importer_class.__module__,
             name=importer_class.__name__,
         )
+
+        delimiter = kwargs.get('delimiter',None)
+        headers_mapping= kwargs.get('headers_mapping',None)
 
         context = self.get_importer_context()
         run_importer(dotted_path, csv_path, task_log.id, context=context,
