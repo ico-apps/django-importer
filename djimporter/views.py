@@ -81,6 +81,7 @@ class ImportFormView(FormView):
             print('Hi ha header mapping')
 
         print(kwargs)
+        print(form.files['upfile'])
         self.task_log = self.create_import_task(form.files['upfile'], **kwargs)
 
         return HttpResponseRedirect(self.get_success_url())
