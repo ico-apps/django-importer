@@ -37,6 +37,7 @@ You can create a basic importer extending ImportFormView (from djimporter.views)
 
 ![advanced_importer](https://github.com/ico-apps/django-importer/assets/2751315/555ff9b4-9196-4af4-b3e1-8bf8b1704d34)
 
+You can create an advanced importer extending ImportFormGuessCsvView (from djimporter.views) and creating a template including the advanced form:
 
 ## Installation
 Install the package using pip:
