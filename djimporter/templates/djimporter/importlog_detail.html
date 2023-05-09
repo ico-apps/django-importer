@@ -80,7 +80,7 @@
       </div>
     </div>
     {% endif %}
-    <div id="js-data" class="d-none" data-import-log-get="{% url importlog-get log.id %}" data-importlog-pk="{{ object.pk }}" data-importlog-status="{{ object.status }}"></div>
+    <div id="js-data" class="d-none" data-import-log-get="{% url 'importlog-get' object.id %}" data-importlog-pk="{{ object.pk }}" data-importlog-status="{{ object.status }}"></div>
 </div><!-- /.row-fluid -->
 
 {% endblock %}
