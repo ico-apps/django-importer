@@ -27,17 +27,14 @@ class ListImportsView(ListView):
         })
         return context
 
-
 class ImportDetailView(DetailView):
     model = ImportLog
     template_name = "djimporter/importlog_detail.html"
 
 class ImportLogGetView(View):
-
+    
     def get(self, request, *args, **kwargs):
-
         import_log = ImportLog.objects.get(pk=self.kwargs['pk'])
-
         return JsonResponse({'status':import_log.status, 'id':self.kwargs['pk']}, safe=False)
 
 class ImportDeleteView(DeleteView):
