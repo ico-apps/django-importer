@@ -80,13 +80,10 @@ class ImportFormView(FormView):
         kwargs = {}
         if 'delimiter' in form.cleaned_data:
             kwargs['delimiter'] = form.cleaned_data['delimiter']
-            print('Hi ha delimiter')
 
         if len(header_mapping) > 0:
             kwargs['headers_mapping'] = header_mapping
-            print('Hi ha header mapping')
 
-        print(form.files['upfile'])
         self.task_log = self.create_import_task(form.files['upfile'], **kwargs)
 
         return HttpResponseRedirect(self.get_success_url())
