@@ -6,7 +6,7 @@ if (['running', 'created'].includes(current_status)){
 function getData() {
     let pk = $('#js-data').data('importlog-pk');
     //$('#js-data').data('import-log-get')
-    let url = window.location + '/get/';
+    let url = window.location + 'get/';
         $.ajax({
         url : url,
         dataType: "json",
