@@ -138,4 +138,16 @@ class ImportFormView(FormView):
         return reverse('djimporter:importlog-detail', kwargs={'pk': self.task_log.id})
 
 
+class ImportFormGuessCsvView(ImportFormView):
+    form_class = UploadDataCsvGuessForm
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        headers = self.importer_class.Meta.fields.copy()
+        if hasattr(self.importer_class.Meta, 'extra_fields'):
+            headers.extend(self.importer_class.Meta.extra_fields)
+        kwargs.update({
+            'headers': headers
+        })
+        return kwargs
