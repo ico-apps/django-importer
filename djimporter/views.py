@@ -32,12 +32,6 @@ class ImportDetailView(DetailView):
     template_name = "djimporter/importlog_detail.html"
     url_get = 'djimporter:importlog-get'
 
-    def get_context_data(self):
-        context = super().get_context_data()
-        context.update({
-            'url_get': self.url_get
-        })
-        return context
 
 class ImportLogGetView(View):
     
