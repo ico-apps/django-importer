@@ -8,13 +8,30 @@ If you want to use the default import log views (list and detail), you should in
 {% extends "myproject/base.html %}
 {% block content %}{% endblock %}
 ```
-## Custom import views (future work)
+## Custom import views
 You need to create the import view form template in your project extending your base template. You can create basic importers or advanced importers using field mapper and separator guesser.
 
 ### Basic importer view
 
 ![simple_importer](https://github.com/ico-apps/django-importer/assets/2751315/fc310978-88ad-41ac-a45a-0992ec232845)
+ 
+You can create a basic importer extending ImportFormView (from djimporter.views) and creating a template including a basic form:
 
+```
+<!-- include information on required fields and csv separator -->
+{% include "djimporter/importer_info.html" %}
+
+<form class="import-form" role="form" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<!-- Using bootstrap  libs -->
+{% bootstrap_form form layout='horizontal' label_class='col-sm-2 col-form-label' field_class='col-sm-6'%}
+<!-- Using django forms -->
+{{ form }}
+
+<button  class="btn btn-light border">{% trans 'Upload' %}</button>
+</form>
+```
 
 ### Advanced importer view
 
