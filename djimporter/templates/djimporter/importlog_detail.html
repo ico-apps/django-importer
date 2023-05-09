@@ -80,6 +80,11 @@
       </div>
     </div>
     {% endif %}
+    <div id="js-data" class="d-none" data-import-log-get="{% url importlog-get log.id %}" data-importlog-pk="{{ object.pk }}" data-importlog-status="{{ object.status }}"></div>
 </div><!-- /.row-fluid -->
 
+{% endblock %}
+
+{% block extra_script %}
+  <script src="{% static 'djimporter/js/upload_status.js' %}"></script>
 {% endblock %}
