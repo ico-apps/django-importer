@@ -29,7 +29,7 @@
         {{ object.created_at }}
     </div>
     <div class="col-3">
-        {{ object.concept }}
+        {{ object.concept }} {{ object.input_file }}
     </div>
     <div class="col-2">
         {{ object.user  }}
@@ -38,7 +38,9 @@
         {{ object.status }}
     </div>
     <div class="col-2">
-        {{ object.num_rows}}
+        {% if object.num_rows %}
+          {{ object.num_rows}}
+        {% endif %}
     </div>
   </div>
   {% if object.list_errors %}
