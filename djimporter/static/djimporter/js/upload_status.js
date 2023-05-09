@@ -7,7 +7,7 @@ function getData() {
     let pk = $('#js-data').data('importlog-pk');
     //$('#js-data').data('import-log-get')
     let url = window.location + '/get/';
-    $.ajax({
+        $.ajax({
         url : url,
         dataType: "json",
         success : function(data) {
