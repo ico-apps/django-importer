@@ -8,6 +8,18 @@ If you want to use the default import log views (list and detail), you should in
 {% extends "myproject/base.html %}
 {% block content %}{% endblock %}
 ```
+## Custom import views (future work)
+You need to create the import view form template in your project extending your base template. You can create basic importers or advanced importers using field mapper and separator guesser.
+
+### Basic importer view
+
+![simple_importer](https://github.com/ico-apps/django-importer/assets/2751315/fc310978-88ad-41ac-a45a-0992ec232845)
+
+
+### Advanced importer view
+
+![advanced_importer](https://github.com/ico-apps/django-importer/assets/2751315/555ff9b4-9196-4af4-b3e1-8bf8b1704d34)
+
 
 ## Installation
 Install the package using pip:
