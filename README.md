@@ -39,6 +39,68 @@ You can create a basic importer extending ImportFormView (from djimporter.views)
 
 You can create an advanced importer extending ImportFormGuessCsvView (from djimporter.views) and creating a template including the advanced form:
 
+
+
+```
+<!-- Form using boostrap4 libs -->
+
+<form class="import-form" role="form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Upload field -->
+        {% bootstrap_field form.upfile layout='horizontal' %}
+        
+        <div class="row justify-content-md-center">
+          <div class="col-11">
+            <div class="card shadow-sm mb-3">
+              <div class="card-header">CSV options</div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-12">
+                    <div>
+                      <!-- Delimiter field -->
+                      {% bootstrap_field form.delimiter layout='horizontal' %}
+                    </div>
+                     <!-- Delimiter guess errors -->
+                    <div id="errors_csv_options" class="text-danger small"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+             <!-- Table for fields mapping -->
+            <div class="card shadow-sm mb-3">
+              <div class="card-header">Headers mapping</div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-3"><strong>Headers</strong></div>
+                  <div class="col-6"><strong>File headers</strong></div>
+                  <div class="col-3"><strong>First row value</strong></div>
+                </div>
+                <div id="headers_mapping">
+                  {% for field in form %}
+                    {% if "header" in field.name %}
+                      <div class="row mb-2 header_field">
+                        <div class="col-3">
+                          {% bootstrap_label field.label label_for=field.id %}
+                        </div>
+                        <div class="col-6">
+                          {% bootstrap_field field layout='horizontal' show_label=False %}
+                        </div>
+                        <div class="col-3 first-row"></div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <div id="errors_headers_mapping" class="text-danger small"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button id="submit" class="btn btn-light border">{% trans 'Upload' %}</button>
+      </form>
+
+```
+
 ## Installation
 Install the package using pip:
 ```bash
