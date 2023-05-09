@@ -33,6 +33,7 @@ class ImportDetailView(DetailView):
     url_get = 'djimporter:importlog-get'
 
 
+
 class ImportLogGetView(View):
     
     def get(self, request, *args, **kwargs):
