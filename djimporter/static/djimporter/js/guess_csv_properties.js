@@ -45,9 +45,6 @@ $(function () {
             $('#id_delimiter').prop('readonly', true);
         }
 
-        console.log(results.meta.delimiter);
-        console.log(results.errors);
-
         if(results.meta.delimiter!=''){
 
             // Set guessed delimiter to delimiter input field
