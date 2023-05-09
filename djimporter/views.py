@@ -30,8 +30,6 @@ class ListImportsView(ListView):
 class ImportDetailView(DetailView):
     model = ImportLog
     template_name = "djimporter/importlog_detail.html"
-    url_get = 'djimporter:importlog-get'
-
 
 
 class ImportLogGetView(View):
