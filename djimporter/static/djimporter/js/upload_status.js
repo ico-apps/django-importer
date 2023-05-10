@@ -4,14 +4,12 @@ if (['running', 'created'].includes(current_status)){
 }
 
 function getData() {
-    let pk = $('#js-data').data('importlog-pk');
-    //$('#js-data').data('import-log-get')
-    let url = window.location + 'get/';
+    let url = $('#js-data').data('importlog-status-url');
         $.ajax({
         url : url,
         dataType: "json",
         success : function(data) {
-            status = data['status'];
+            let status = data['status'];
             if (current_status != status)
                 location.reload();
             if (current_status == 'created'){

@@ -27,9 +27,18 @@ class ListImportsView(ListView):
         })
         return context
 
+
 class ImportDetailView(DetailView):
     model = ImportLog
     template_name = "djimporter/importlog_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["importlog_status_url"] = self.get_status_url()
+        return context
+
+    def get_status_url(self):
+        return reverse("djimporter:importlog-get", args=(self.object.pk,))
 
 
 class ImportLogGetView(View):
@@ -37,6 +46,7 @@ class ImportLogGetView(View):
     def get(self, request, *args, **kwargs):
         import_log = ImportLog.objects.get(pk=self.kwargs['pk'])
         return JsonResponse({'status':import_log.status, 'id':self.kwargs['pk']}, safe=False)
+
 
 class ImportDeleteView(DeleteView):
     model = ImportLog
