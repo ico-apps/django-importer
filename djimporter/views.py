@@ -1,12 +1,13 @@
 from django.core.files.storage import default_storage
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+from django.views import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, DeleteView
 from django.views.generic.list import ListView
 
 from . import get_importlog_model
-from .forms import CsvImportForm
+from .forms import CsvImportForm, UploadDataCsvGuessForm
 from .tasks import run_importer
 
 ImportLog = get_importlog_model()
@@ -30,6 +31,21 @@ class ListImportsView(ListView):
 class ImportDetailView(DetailView):
     model = ImportLog
     template_name = "djimporter/importlog_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["importlog_status_url"] = self.get_status_url()
+        return context
+
+    def get_status_url(self):
+        return reverse("djimporter:importlog-get", args=(self.object.pk,))
+
+
+class ImportLogGetView(View):
+
+    def get(self, request, *args, **kwargs):
+        import_log = ImportLog.objects.get(pk=self.kwargs['pk'])
+        return JsonResponse({'status': import_log.status, 'id': self.kwargs['pk']}, safe=False)
 
 
 class ImportDeleteView(DeleteView):
@@ -128,3 +144,18 @@ class ImportFormView(FormView):
 
     def get_success_url(self):
         return reverse('djimporter:importlog-detail', kwargs={'pk': self.task_log.id})
+
+
+class ImportFormGuessCsvView(ImportFormView):
+    form_class = UploadDataCsvGuessForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        headers = self.importer_class.Meta.fields.copy()
+        if hasattr(self.importer_class.Meta, 'extra_fields'):
+            headers.extend(self.importer_class.Meta.extra_fields)
+        kwargs.update({
+            'headers': headers
+        })
+        return kwargs

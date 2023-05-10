@@ -1,5 +1,6 @@
 {% extends "djimporter/base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block content %}
 
@@ -28,7 +29,7 @@
         {{ object.created_at }}
     </div>
     <div class="col-3">
-        {{ object.concept }}
+        {{ object.concept }} {{ object.input_file }}
     </div>
     <div class="col-2">
         {{ object.user  }}
@@ -37,7 +38,9 @@
         {{ object.status }}
     </div>
     <div class="col-2">
-        {{ object.num_rows}}
+        {% if object.num_rows %}
+          {{ object.num_rows}}
+        {% endif %}
     </div>
   </div>
   {% if object.list_errors %}
@@ -80,6 +83,11 @@
       </div>
     </div>
     {% endif %}
+    <div id="js-data" class="d-none" data-importlog-status-url="{{ importlog_status_url }}" data-importlog-pk="{{ object.pk }}" data-importlog-status="{{ object.status }}"></div>
 </div><!-- /.row-fluid -->
 
+{% endblock %}
+
+{% block djimporter_scripts %}
+  <script src="{% static 'djimporter/js/upload_status.js' %}"></script>
 {% endblock %}
