@@ -45,7 +45,7 @@ class ImportLogGetView(View):
 
     def get(self, request, *args, **kwargs):
         import_log = ImportLog.objects.get(pk=self.kwargs['pk'])
-        return JsonResponse({'status':import_log.status, 'id':self.kwargs['pk']}, safe=False)
+        return JsonResponse({'status': import_log.status, 'id': self.kwargs['pk']}, safe=False)
 
 
 class ImportDeleteView(DeleteView):
