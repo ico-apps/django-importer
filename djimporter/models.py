@@ -17,7 +17,7 @@ class AbstractBaseLog(models.Model):
 
     status = models.CharField(max_length=25, choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.CharField(max_length=50)
+    user = models.CharField(max_length=512)
 
     errors = models.TextField(blank=True)
     num_rows = models.IntegerField(null=True)
