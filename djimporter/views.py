@@ -118,7 +118,7 @@ class ImportFormView(FormView):
         return task_log
 
     def create_import_log(self, csv_file):
-        max_user_length = ImportLog.user.field_max_length
+        max_user_length = ImportLog.user.field.max_length
         user_repr = str(self.request.user)[:max_user_length]
 
         task_log = ImportLog.objects.create(
