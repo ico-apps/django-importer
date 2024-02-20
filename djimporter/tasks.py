@@ -1,8 +1,8 @@
 import json
 import os
 
-from django.utils.module_loading import import_string
 from background_task import background
+from django.utils.module_loading import import_string
 
 from . import get_importlog_model
 
@@ -10,7 +10,7 @@ ImportLog = get_importlog_model()
 
 
 @background(schedule=0)
-def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, headers_mapping=None):
+def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, headers_mapping=None, warning_mode=False):
     """
     csv_model: should be string dotted_path e.g. 'djimporter.FooCsv'
     context: should be serializable
@@ -24,14 +24,18 @@ def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, he
     # run importer
     try:
         importer = importer_class(
-            csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping, log=log
+            csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping, log=log,
+            warning_mode=warning_mode,
         )
         importer.is_valid()
         importer.save()
 
         # update log with import result
         if importer.errors:
-            log.status = ImportLog.FAILED
+            if importer.warning_mode:
+                log.status = ImportLog.PARTIAL_WITH_ERRORS
+            else:
+                log.status = ImportLog.FAILED
             log.errors = json.dumps(importer.errors)
         else:
             log.status = ImportLog.COMPLETED
