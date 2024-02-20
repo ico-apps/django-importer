@@ -7,11 +7,13 @@ class AbstractBaseLog(models.Model):
     CREATED = 'created'
     RUNNING = 'running'
     FAILED = 'failed'
+    PARTIAL_WITH_ERRORS = 'partial-with-errors'
     COMPLETED = 'completed'
     STATUS_CHOICES = (
         (CREATED, 'CREATED'),
         (RUNNING, 'RUNNING'),
         (FAILED, 'FAILED'),
+        (PARTIAL_WITH_ERRORS, 'PARTIAL-WITH-ERRORS'),
         (COMPLETED, 'COMPLETED'),
     )
 

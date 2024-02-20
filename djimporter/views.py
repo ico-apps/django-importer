@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView, DeleteView
+from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.list import ListView
 
 from . import get_importlog_model
@@ -94,11 +94,17 @@ class ImportFormView(FormView):
         if len(header_mapping) > 0:
             kwargs['headers_mapping'] = header_mapping
 
+        kwargs['warning_mode'] = form.cleaned_data.get('warning_mode', False)
+
         self.task_log = self.create_import_task(form.files['upfile'], **kwargs)
 
         return HttpResponseRedirect(self.get_success_url())
 
-    def create_import_task(self, csv_file, delimiter=None, headers_mapping=None):
+    def create_import_task(self, csv_file, **kwargs):
+        delimiter = kwargs.get('delimiter')
+        headers_mapping = kwargs.get('headers_mapping')
+        warning_mode = kwargs.get('warning_mode', False)
+
         importer_class = self.get_importer_class()
         task_log = self.create_import_log(csv_file)
 
@@ -113,7 +119,8 @@ class ImportFormView(FormView):
 
         context = self.get_importer_context()
         run_importer(dotted_path, csv_path, task_log.id, context=context,
-                     delimiter=delimiter, headers_mapping=headers_mapping)
+                     delimiter=delimiter, headers_mapping=headers_mapping,
+                     warning_mode=warning_mode)
 
         return task_log
 

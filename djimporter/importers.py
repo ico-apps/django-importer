@@ -54,11 +54,12 @@ class ErrorMixin(object):
 
 class CsvModel(ErrorMixin):
 
-    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, log=None):
+    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, log=None, warning_mode=False):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
         self.log = log
+        self.warning_mode = warning_mode
 
         self.errors = []
         self.list_tasks = []
@@ -195,7 +196,7 @@ class CsvModel(ErrorMixin):
 
         self.validate_in_file()
         if self.errors:
-            if self.has_save:
+            if self.has_save and not self.warning_mode:
                 # delete related objects created if there are errors
                 # while processing post_save operations
                 ids = [o.object.id for o in self.list_objs]
@@ -219,7 +220,7 @@ class CsvModel(ErrorMixin):
         return True
 
     def save(self):
-        if self.errors: return self.errors
+        if self.errors and not self.warning_mode: return self.errors
         if self.has_save: return
         if self.not_create_model: return
 
