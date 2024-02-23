@@ -254,7 +254,12 @@ class SlugRelatedField(Field):
         except ObjectDoesNotExist:
             msg = "No match found for %(model)s with value %(value)s"
             params = {'model': self.model.__name__, 'value': value}
-            raise ValidationError(msg, params=params)
+
+            if self.model._meta.get_field(self.match).null:
+                return None
+            else:
+                raise ValidationError(msg, params=params)
+
         except (TypeError, ValueError) as e:
             raise ValidationError(e, code='invalid')
 
