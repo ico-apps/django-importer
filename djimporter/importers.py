@@ -52,7 +52,17 @@ class ErrorMixin(object):
         }
 
 
-class CsvModel(ErrorMixin):
+class CsvModelMetaclass(type):
+    def __new__(cls, name, bases, attrs):
+        from djimporter.fields import Field
+        new_class = super().__new__(cls, name, bases, attrs)
+        for attr_name, attr_value in attrs.items():
+            if isinstance(attr_value, Field) and not hasattr(attr_value, 'source'):
+                setattr(attr_value, 'source', attr_name)
+        return new_class
+
+
+class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
     def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, log=None):
         self.file = csvfile
@@ -121,7 +131,10 @@ class CsvModel(ErrorMixin):
         # Get all fields than is defined in the class
         for f in self.Meta.fields:
             if hasattr(self, f):
-                attributes[f] = getattr(self, f)
+                field = getattr(self, f)
+                # inject model on field to be able to access it
+                field.csv_model = self.Meta.dbModel
+                attributes[f] = field
             else:
                 attributes[f] = dmodel[f]
 

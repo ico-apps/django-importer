@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## main
 - [added] #53 Implement CSV guesser to allow dynamic column mapping using JS.
+- [changed] #58 Allow null values on SlugRelatedField.
 - [fixed] #56 Handle too long values of ImportLog.user.
 
 ## [0.4.0] - 2022-07-06

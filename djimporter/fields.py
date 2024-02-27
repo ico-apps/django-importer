@@ -3,8 +3,8 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Manager
 from django.db.models import Model as djangoModel
-from django.db.models.query import QuerySet
 from django.db.models import TimeField as django_TimeField
+from django.db.models.query import QuerySet
 from django.utils.translation import gettext_lazy as _
 
 
@@ -247,6 +247,16 @@ class SlugRelatedField(Field):
         if not value:
             if self.null:
                 return None
+
+            # handle if null is defined on model field
+            model_field = self.csv_model._meta.get_field(self.source)
+            if model_field.null:
+                # FIXME this is hacky, any other idea to address that?
+                # monkey patch to avoid csvimporter.validate() raise ValidationError
+                # this field cannot be blank while runnin `object.clean_fields()`
+                model_field.blank = True
+                return None
+
             self.fail('required')
 
         try:
@@ -255,6 +265,7 @@ class SlugRelatedField(Field):
             msg = "No match found for %(model)s with value %(value)s"
             params = {'model': self.model.__name__, 'value': value}
             raise ValidationError(msg, params=params)
+
         except (TypeError, ValueError) as e:
             raise ValidationError(e, code='invalid')
 
