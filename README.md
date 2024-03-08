@@ -14,7 +14,7 @@ You need to create the import view form template in your project extending your 
 ### Basic importer view
 
 ![simple_importer](https://github.com/ico-apps/django-importer/assets/2751315/fc310978-88ad-41ac-a45a-0992ec232845)
- 
+
 You can create a basic importer extending ImportFormView (from djimporter.views) and creating a template including a basic form:
 
 ```
@@ -46,10 +46,10 @@ You can create an advanced importer extending ImportFormGuessCsvView (from djimp
 
 <form class="import-form" role="form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        
+
         <!-- Upload field -->
         {% bootstrap_field form.upfile layout='horizontal' %}
-        
+
         <div class="row justify-content-md-center">
           <div class="col-11">
             <div class="card shadow-sm mb-3">
@@ -141,4 +141,10 @@ cp djimporter/templates/djimporter/base.example.html djimporter/templates/djimpo
 
 # 3. run test suite!
 pytest
+```
+
+NOTE: to test against several environments (python version and Django version) you can use tox:
+```bash
+# check configurations on `tox.ini`
+tox
 ```
