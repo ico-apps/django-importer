@@ -48,8 +48,38 @@
     <div class="col-12">
       <div>
         <h3>Errors for <strong>{{ object.input_file }}</strong></h3>
+
+        <br/>
+
+        {% if summary %}
+        <h4>Summarized errors found in the validated file</h4>
+
         <table class="table table-hover table-striped">
-          <caption>Errors found in the validated file</caption>
+          <caption></caption>
+          <thead>
+            <th scope="col">#</th>
+            <th scope="col">Number of lines</th>
+            <th scope="col">Field</th>
+            <th scope="col">Error</th>
+          </thead>
+          <tbody>
+            {% for key, error in summary.items %}
+              <tr>
+                <td class="align-middle">{{ forloop.counter }}</td>
+                <td class="align-middle"><span class="badge badge-danger">{{ error.line_count }}</span></td>
+                <td class="align-middle">{{ error.field }}</td>
+                <td>{{ error.message }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <hr/>
+        {% endif %}
+
+        <h4>All errors found in the validated file, line by line</h4>
+
+        <table class="table table-hover table-striped">
           <thead>
             <th scope="col">#</th>
             <th scope="col">line</th>

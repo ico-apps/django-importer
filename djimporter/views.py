@@ -35,7 +35,21 @@ class ImportDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["importlog_status_url"] = self.get_status_url()
+        context["summary"] = self.prepare_error_summary()
+
         return context
+
+    def prepare_error_summary(self):
+
+        summary_errors = {}
+        for error in self.object.list_errors():
+            if 'message' in error and 'field' in error:
+                unique = '{0}_{1}'.format(error['message'], error['field'])
+                if unique not in summary_errors:
+                    summary_errors[unique] = {'line_count': 0, 'field': error['field'], 'message': error['message']}
+                summary_errors[unique]['line_count'] += 1
+        
+        return summary_errors
 
     def get_status_url(self):
         return reverse("djimporter:importlog-get", args=(self.object.pk,))
