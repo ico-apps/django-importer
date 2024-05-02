@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## main
+- [fixed] #59 Django 4.0 compatibility
 
 ## [0.5.0] - 2024-02-27
 - [added] #53 Implement CSV guesser to allow dynamic column mapping using JS.
