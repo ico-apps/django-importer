@@ -31,11 +31,13 @@ class ListImportsView(ListView):
 class ImportDetailView(DetailView):
     model = ImportLog
     template_name = "djimporter/importlog_detail.html"
+    url_detail_extended = 'djimporter:importlog-detail-extended'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["importlog_status_url"] = self.get_status_url()
         context["summary"] = self.prepare_error_summary()
+        context["url_detail_extended"] = self.url_detail_extended
 
         return context
 
@@ -48,8 +50,24 @@ class ImportDetailView(DetailView):
                 if unique not in summary_errors:
                     summary_errors[unique] = {'line_count': 0, 'field': error['field'], 'message': error['message']}
                 summary_errors[unique]['line_count'] += 1
-        
+
         return summary_errors
+
+    def get_status_url(self):
+        return reverse("djimporter:importlog-get", args=(self.object.pk,))
+
+
+class ImportDetailExtendedView(DetailView):
+    model = ImportLog
+    template_name = "djimporter/importlog_detail_extended.html"
+    url_detail = 'djimporter:importlog-detail'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["importlog_status_url"] = self.get_status_url()
+        context["url_detail"] = self.url_detail
+
+        return context
 
     def get_status_url(self):
         return reverse("djimporter:importlog-get", args=(self.object.pk,))
