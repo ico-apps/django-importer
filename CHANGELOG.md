@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## main
 
+## [0.7.0] - 2024-07-18
+- [added] #61 Group by error type and message to show a brief summary in importlog
+- [added] #57 Allow partial imports
+
 ## [0.6.0] - 2024-05-02
 - [fixed] #59 Django 4.0 compatibility
 
