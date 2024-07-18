@@ -9,6 +9,10 @@ class CSVFileField(forms.FileField):
 
 class CsvImportForm(forms.Form):
     upfile = CSVFileField(label='CSV file')
+    warning_mode = forms.BooleanField(
+        label='Allow partial imports (warn user instead of fail)',
+        required=False,
+    )
 
 
 class UploadDataCsvGuessForm(CsvImportForm):

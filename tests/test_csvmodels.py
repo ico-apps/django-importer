@@ -133,3 +133,28 @@ class TimeFieldTest(TestCase):
     def test_explicit_disallow_null_values(self):
         start_time = fields.TimeField(null=False)
         self.assertRaises(ValidationError, start_time.to_python, '')
+
+
+class WarningModeTest(TestCase):
+    def test_partial(self):
+        Musician.objects.bulk_create([
+            Musician(name="Susan Schmith", instrument="guitar"),
+            # Musician(name="Johan Wolf", instrument="piano"),
+        ])
+
+        class AlbumCsv(importers.CsvModel):
+            artist = fields.SlugRelatedField(slug_field="name", queryset=Musician.objects.all())
+
+            class Meta:
+                delimiter = ';'
+                dbModel = Album
+                fields = ['name', 'release_date', 'num_stars', 'artist']
+
+        csv_path = os.path.join(TESTDATA_DIR, 'albums.csv')
+        importer = AlbumCsv(csv_path, warning_mode=True)
+        self.assertFalse(importer.is_valid())
+        self.assertEqual(1, len(importer.errors))
+
+        # as importer is run on warning_mode valid objects will be saved on database
+        importer.save()
+        self.assertEqual(1, Album.objects.count())
