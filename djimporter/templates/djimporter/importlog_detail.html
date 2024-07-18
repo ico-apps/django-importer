@@ -45,7 +45,7 @@
   </div>
 
   {% if object.list_errors %}
-  <a class="btn btn-secondary mb-3" href="{% url url_detail_extended object.id %}">Go to extended detail</a>
+  <a class="btn btn-secondary mb-3" href="{{ url_detail_extended }}">Go to extended detail</a>
 
   <div class="row-fluid border border-dark rounded p-3 pt-5">
     <div class="col-12">

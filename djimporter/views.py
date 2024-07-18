@@ -37,7 +37,7 @@ class ImportDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context["importlog_status_url"] = self.get_status_url()
         context["summary"] = self.prepare_error_summary()
-        context["url_detail_extended"] = self.url_detail_extended
+        context["url_detail_extended"] = self.get_detail_extended_url()
 
         return context
 
@@ -56,6 +56,9 @@ class ImportDetailView(DetailView):
     def get_status_url(self):
         return reverse("djimporter:importlog-get", args=(self.object.pk,))
 
+    def get_detail_extended_url(self):
+        return reverse(self.url_detail_extended, args=(self.object.pk,))
+
 
 class ImportDetailExtendedView(DetailView):
     model = ImportLog
@@ -65,12 +68,15 @@ class ImportDetailExtendedView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["importlog_status_url"] = self.get_status_url()
-        context["url_detail"] = self.url_detail
+        context["url_detail"] = self.get_detail_url()
 
         return context
 
     def get_status_url(self):
         return reverse("djimporter:importlog-get", args=(self.object.pk,))
+
+    def get_detail_url(self):
+        return reverse(self.url_detail, args=(self.object.pk,))
 
 
 class ImportLogGetView(View):
