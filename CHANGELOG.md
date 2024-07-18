@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## main
 
+## [0.6.0] - 2024-05-02
+- [fixed] #59 Django 4.0 compatibility
+
 ## [0.5.0] - 2024-02-27
 - [added] #53 Implement CSV guesser to allow dynamic column mapping using JS.
 - [changed] #58 Allow null values on SlugRelatedField.
