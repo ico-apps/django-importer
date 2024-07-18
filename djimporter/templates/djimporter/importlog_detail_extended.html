@@ -45,7 +45,7 @@
   </div>
 
   {% if object.list_errors %}
-  <a class="btn btn-secondary mb-3" href="{{ url_detail_extended }}">Go to extended detail</a>
+  <a class="btn btn-secondary mb-3" href="{{ url_detail }}">Go to summarized detail</a>
 
   <div class="row-fluid border border-dark rounded p-3 pt-5">
     <div class="col-12">
@@ -54,32 +54,39 @@
 
         <br/>
 
-        {% if summary %}
-        <h4>Summarized errors found in the validated file</h4>
+        <h4>All errors found in the validated file, line by line</h4>
 
         <table class="table table-hover table-striped">
-          <caption></caption>
           <thead>
             <th scope="col">#</th>
-            <th scope="col">Number of lines</th>
-            <th scope="col">Field</th>
-            <th scope="col">Error</th>
+            <th scope="col">line</th>
+            <th scope="col">field</th>
+            <th scope="col">error</th>
           </thead>
           <tbody>
-            {% for key, error in summary.items %}
+            {% for error in object.list_errors %}
               <tr>
                 <td class="align-middle">{{ forloop.counter }}</td>
-                <td class="align-middle"><span class="badge badge-danger">{{ error.line_count }}</span></td>
-                <td class="align-middle">{{ error.field }}</td>
-                <td>{{ error.message }}</td>
+                <td class="align-middle">{{ error.line }}</td>
+                {% if error.message %}
+                  <td class="align-middle">{{ error.field }}</td>
+                  <td>{{ error.message }}</td>
+                {% else %}
+                  {% comment %}
+                    Support showing legacy errors
+                    created by djimporter in versions <= 0.1.0
+                  {% endcomment %}
+                  {% for field, details in error.error.items %}
+                    {% if forloop.first %}
+                      <td class="align-middle">{{ field }}</td>
+                      <td>{{ details }}</td>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
               </tr>
             {% endfor %}
           </tbody>
         </table>
-
-        <hr/>
-        {% endif %}
-
       </div>
     </div>
     {% endif %}
