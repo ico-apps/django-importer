@@ -11,7 +11,7 @@ from django.test import TestCase
 
 from djimporter import fields, importers
 
-from .models import Album, ForeignKeySource, ForeignKeyTarget, Musician
+from .models import Album, ForeignKeySource, ForeignKeyTarget, Musician, Song
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -53,6 +53,27 @@ class SlugFieldMapping(TestCase):
         importer = ForeignKeySourceCsv(csv_path)
 
         self.assertFalse(importer.is_valid())
+
+
+class NullableSlugFieldTest(TestCase):
+    def test_valid(self):
+        artist = Musician.objects.create(name="Lola", instrument="guitar")
+        Album.objects.create(name="Lolailo", release_date="2023-02-02", num_stars=4, artist=artist)
+        class SongCsv(importers.CsvModel):
+            album = fields.SlugRelatedField(
+                queryset=Album.objects.all(),
+                slug_field='name',
+            )
+
+            class Meta:
+                dbModel = Song
+                fields = ('name', 'album')
+
+
+        csv_path = os.path.join(TESTDATA_DIR, 'songs.csv')
+        importer = SongCsv(csv_path)
+
+        self.assertTrue(importer.is_valid(), importer.errors)
 
 
 class CachedSlugFieldTest(TestCase):

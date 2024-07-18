@@ -32,3 +32,8 @@ class Album(models.Model):
     release_date = models.DateField()
     num_stars = models.IntegerField()
     artist = models.ForeignKey(Musician, on_delete=models.CASCADE)
+
+
+class Song(models.Model):
+    name = models.CharField(max_length=100)
+    album = models.ForeignKey(Album, null=True, on_delete=models.SET_NULL)

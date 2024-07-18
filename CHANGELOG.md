@@ -5,7 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## main
+
+## [0.6.0] - 2024-05-02
+- [fixed] #59 Django 4.0 compatibility
+
+## [0.5.0] - 2024-02-27
 - [added] #53 Implement CSV guesser to allow dynamic column mapping using JS.
+- [changed] #58 Allow null values on SlugRelatedField.
 - [fixed] #56 Handle too long values of ImportLog.user.
 
 ## [0.4.0] - 2022-07-06
