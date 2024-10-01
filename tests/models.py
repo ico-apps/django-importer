@@ -25,6 +25,7 @@ class ForeignKeySource(DJImporterModel):
 class Musician(models.Model):
     name = models.CharField(max_length=50, unique=True)
     instrument = models.CharField(max_length=100)
+    abilities = models.JSONField(null=True)
 
 
 class Album(models.Model):

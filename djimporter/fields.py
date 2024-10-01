@@ -324,6 +324,17 @@ class CsvRelated(Field):
         return value
 
 
+class JsonField(Field):
+
+    field_name = "Json"
+
+    def __init__(self, *args, null=False, **kwargs):
+        self.in_csv = False
+
+    def to_python(self):
+        return []
+
+
 class DefaultField(Field):
     """
     We use this field for override all values in csv or add one
