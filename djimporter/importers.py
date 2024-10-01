@@ -226,7 +226,6 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         for f in self.get_user_visible_fields():
             if f not in self.csv_reader.fieldnames:
                 errors.update({f: _(self.get_dict_error()[f])})
-        print(errors)
         if errors:
             error = ValidationError(errors)
             self.add_error(1, 'header', error)
