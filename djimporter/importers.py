@@ -78,7 +78,10 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         self._meta = None
 
         self.fields = self.get_fields()
+
         self.extra_fields = getattr(self.Meta, 'extra_fields', [])
+        self.json_fields = getattr(self.Meta, 'json_fields', [])
+
         self.headers_mapping = headers_mapping
         self.json_mapping = json_mapping
 
