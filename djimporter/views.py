@@ -201,9 +201,18 @@ class ImportFormGuessCsvView(ImportFormView):
         kwargs = super().get_form_kwargs()
 
         headers = self.importer_class.Meta.fields.copy()
+        json_fields = []
+        print(headers)
         if hasattr(self.importer_class.Meta, 'extra_fields'):
             headers.extend(self.importer_class.Meta.extra_fields)
+
+        if hasattr(self.importer_class.Meta, 'json_fields'):
+            json_fields = self.importer_class.Meta.json_fields
+            for field in json_fields:
+                headers.remove(field)
+
         kwargs.update({
-            'headers': headers
+            'headers': headers,
+            'json_fields': json_fields
         })
         return kwargs

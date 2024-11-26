@@ -64,7 +64,7 @@ class CsvModelMetaclass(type):
 
 class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
-    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, log=None, warning_mode=False):
+    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, json_mapping=None, log=None, warning_mode=False):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
@@ -78,8 +78,12 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         self._meta = None
 
         self.fields = self.get_fields()
+
         self.extra_fields = getattr(self.Meta, 'extra_fields', [])
+        self.json_fields = getattr(self.Meta, 'json_fields', [])
+
         self.headers_mapping = headers_mapping
+        self.json_mapping = json_mapping
 
         self.mapping = self.get_mapping()
         self.delimiter = delimiter if delimiter is not None else getattr(self.Meta, 'delimiter', ';')
@@ -225,7 +229,6 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         for f in self.get_user_visible_fields():
             if f not in self.csv_reader.fieldnames:
                 errors.update({f: _(self.get_dict_error()[f])})
-
         if errors:
             error = ValidationError(errors)
             self.add_error(1, 'header', error)
@@ -265,6 +268,7 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
             'meta': self.Meta,
             'fields': self.fields,
             'mapping': self.mapping,
+            'json_mapping': self.json_mapping,
             'validate_unique': self.validate_unique,
             'append_mode': self.append_mode,
             'exclude_fields': self.exclude_fields
@@ -304,7 +308,7 @@ class ReadRow(ErrorMixin):
 
     def __init__(self, fields=None, mapping=None, meta=None, context=None,
                  line=None, line_number=None, validate_unique=True, append_mode=False,
-                 exclude_fields=None):
+                 exclude_fields=None, json_mapping=None):
         self.Meta = meta
         self.fields = fields
         self.mapping = mapping
@@ -314,6 +318,7 @@ class ReadRow(ErrorMixin):
         self.validate_unique = validate_unique
         self.append_mode = append_mode
         self.exclude_fields = exclude_fields
+        self.json_mapping = json_mapping
 
         self.data = None
         self.object = None
@@ -366,6 +371,15 @@ class ReadRow(ErrorMixin):
                 # the user.
                 self.add_error(self.line_number, csv_fieldname, error)
                 raise
+        
+        # Build JSON objects
+        if self.json_mapping:
+            for field, mapping in self.json_mapping.items():
+                data[field] = []
+                # TODO: check field are jsonfield
+                for column in mapping:
+                    cell = self.line[column['column_name']]
+                    data[field].append({'label': column['label'], 'value': cell})
 
         self.data = data
 
@@ -401,7 +415,6 @@ class ReadRow(ErrorMixin):
         if not self.object: return
         if hasattr(self.Meta, 'create_model') and not self.Meta.create_model:
             return
-
         self.object.save()
 
     def get_unique_together(self):

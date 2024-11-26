@@ -158,3 +158,72 @@ class WarningModeTest(TestCase):
         # as importer is run on warning_mode valid objects will be saved on database
         importer.save()
         self.assertEqual(1, Album.objects.count())
+
+
+class HeadersMappingTest(TestCase):
+    def test_wrong_mapping(self):
+        Musician.objects.bulk_create([
+            Musician(name="Antònia Font", instrument="guitar"),
+        ])
+
+        class AlbumCsv(importers.CsvModel):
+            artist = fields.SlugRelatedField(slug_field="name", queryset=Musician.objects.all())
+
+            class Meta:
+                delimiter = ';'
+                dbModel = Album
+                fields = ['name', 'release_date', 'num_stars', 'artist']
+
+        csv_path = os.path.join(TESTDATA_DIR, 'albums_diff_headers.csv')
+        importer = AlbumCsv(csv_path, warning_mode=True)
+        self.assertFalse(importer.is_valid())
+        self.assertEqual(len(AlbumCsv.Meta.fields), len(importer.errors))
+
+    def test_valid_mapping(self):
+        Musician.objects.bulk_create([
+            Musician(name="Antònia Font", instrument="guitar"),
+        ])
+
+        class AlbumCsv(importers.CsvModel):
+            artist = fields.SlugRelatedField(slug_field="name", queryset=Musician.objects.all())
+
+            class Meta:
+                delimiter = ';'
+                dbModel = Album
+                fields = ['name', 'release_date', 'num_stars', 'artist']
+
+        header_mapping = {
+            'nom': 'name',
+            'artista': 'artist',
+            'sortida_del_disc': 'release_date',
+            'estrelles': 'num_stars'
+        }
+
+        csv_path = os.path.join(TESTDATA_DIR, 'albums_diff_headers.csv')
+        importer = AlbumCsv(csv_path, headers_mapping=header_mapping)
+
+        self.assertTrue(importer.is_valid(), importer.errors)
+
+
+class JsonFieldTest(TestCase):
+    def test_(self):
+
+        class MusicianCsv(importers.CsvModel):
+            abilities = fields.JsonField(required=False)
+
+            class Meta:
+                delimiter = ';'
+                dbModel = Musician
+                fields = ['name', 'instrument', 'abilities']
+
+        json_mapping = {
+            'abilities': [{'label': 'Earn money', 'column_name': 'money'}, {'column_name':'born', 'label': 'Date of birth'}]
+        }
+
+        csv_path = os.path.join(TESTDATA_DIR, 'musicians.csv')
+        importer = MusicianCsv(csv_path, json_mapping=json_mapping)
+        self.assertTrue(importer.is_valid())
+
+        importer.save()
+
+        self.assertEqual(2, Musician.objects.count())
