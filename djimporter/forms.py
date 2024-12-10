@@ -20,11 +20,16 @@ class UploadDataCsvGuessForm(CsvImportForm):
 
     def __init__(self, *args, **kwargs):
         self.headers = kwargs.pop("headers")
+        self.fields_help_text = kwargs.pop("fields_help_text", {})
         super().__init__(*args, **kwargs)
 
         # Add a field for each expected header
         for header in self.headers:
-            self.fields['header_' + header] = forms.CharField(label=header, widget=forms.Select())
+            self.fields['header_' + header] = forms.CharField(
+                label=header,
+                widget=forms.Select(),
+                help_text=self.fields_help_text.get(header, "")
+            )
 
     def clean_delimiter(self):
         delimiter = self.cleaned_data["delimiter"]
