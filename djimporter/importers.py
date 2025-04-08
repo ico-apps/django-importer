@@ -170,8 +170,8 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
     def open_file(self, path):
         me = Magic(mime_encoding=True)
         enc = me.from_file(path)
-        print(path)
-        txt = open(path, encoding=enc).read()
+        print(enc)
+        txt = open(path, encoding='utf-8').read()
         csv = bytes(txt, encoding='utf-8')
         return io.BytesIO(csv)
 
