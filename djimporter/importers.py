@@ -198,14 +198,12 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
             csv_file = self.open_file(self.file)
         self.csv_file = csv_file.read().decode('UTF-8').splitlines()
         fieldnames = self.change_headers_mapping()
-        print(fieldnames)
         self.csv_reader = csv.DictReader(self.csv_file, delimiter=self.delimiter, fieldnames=fieldnames)
         # Skip header because we are passing fieldnames
         next(self.csv_reader)
 
         self.validate_header()
         if self.errors:
-            print(self.errors)
             return False
 
         for line_number, line in enumerate(self.csv_reader, start=2):
@@ -215,7 +213,6 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
         self.validate_in_file()
         if self.errors:
-            print(self.errors)
             if self.has_save and not self.warning_mode:
                 # delete related objects created if there are errors
                 # while processing post_save operations
