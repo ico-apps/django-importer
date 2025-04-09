@@ -64,7 +64,8 @@ class CsvModelMetaclass(type):
 
 class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
-    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, log=None, warning_mode=False):
+    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, 
+                 log=None, warning_mode=False):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
@@ -82,6 +83,8 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         self.headers_mapping = headers_mapping
 
         self.mapping = self.get_mapping()
+        self.encoding = getattr(self.Meta, 'encoding', None)
+
         self.delimiter = delimiter if delimiter is not None else getattr(self.Meta, 'delimiter', ';')
         self.dbModel = self.Meta.dbModel
         self.post_save = hasattr(self.Meta, 'post_save')
@@ -113,6 +116,9 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
             head.append(f)
 
         return head
+
+    def set_extra_fields(self, extra_fields):
+        self.extra_fields = extra_fields
 
     def get_delimiter(self):
         return self.delimiter
@@ -160,13 +166,16 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         if self.dict_error:
             return self.dict_error
 
-        msg = _("Header field '%s' is wrong")
+        msg = _("Column '%s' is missing in the file")
         self.dict_error = {i: (msg % i) for i in self.get_user_visible_fields()}
         return self.dict_error
 
     def open_file(self, path):
-        me = Magic(mime_encoding=True)
-        enc = me.from_file(path)
+        if self.encoding is None:
+            me = Magic(mime_encoding=True)
+            enc = me.from_file(path)
+        else:
+            enc = self.encoding
         txt = open(path, encoding=enc).read()
         csv = bytes(txt, encoding='utf-8')
         return io.BytesIO(csv)
@@ -219,7 +228,8 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         return True
 
     def validate_header(self):
-        if self.errors: return False
+        if self.errors:
+            return False
 
         errors = {}
         for f in self.get_user_visible_fields():
