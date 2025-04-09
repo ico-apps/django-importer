@@ -64,7 +64,8 @@ class CsvModelMetaclass(type):
 
 class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
-    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, log=None, warning_mode=False):
+    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, 
+                 log=None, warning_mode=False):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
@@ -82,6 +83,8 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         self.headers_mapping = headers_mapping
 
         self.mapping = self.get_mapping()
+        self.encoding = getattr(self.Meta, 'encoding', None)
+
         self.delimiter = delimiter if delimiter is not None else getattr(self.Meta, 'delimiter', ';')
         self.dbModel = self.Meta.dbModel
         self.post_save = hasattr(self.Meta, 'post_save')
@@ -168,10 +171,12 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         return self.dict_error
 
     def open_file(self, path):
-        me = Magic(mime_encoding=True)
-        enc = me.from_file(path)
-        print(enc)
-        txt = open(path, encoding='utf-8').read()
+        if self.encoding is None:
+            me = Magic(mime_encoding=True)
+            enc = me.from_file(path)
+        else:
+            enc = self.encoding
+        txt = open(path, encoding=enc).read()
         csv = bytes(txt, encoding='utf-8')
         return io.BytesIO(csv)
 
