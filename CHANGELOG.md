@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## main
 
+## [0.9.0] - 2025-04-09
+- [added] #65 Added update method set_extra_fields 
+
 ## [0.8.0] - 2024-12-16
-- [added] #64 Added help_text field for field mapper importer view 
+- [added] #64 Added help_text field for field mapper importer view
 
 ## [0.7.0] - 2024-07-18
 - [added] #61 Group by error type and message to show a brief summary in importlog
