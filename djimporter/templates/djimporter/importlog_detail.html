@@ -20,7 +20,10 @@
     <div class="col-2">
         {% trans 'Status' %}
     </div>
-    <div class="col-2">
+    <div class="col-1">
+          {% trans 'Progress' %}
+      </div>
+    <div class="col-1">
         {% trans 'Num Rows' %}
     </div>
   </div>
@@ -37,7 +40,10 @@
     <div class="col-2">
         {{ object.status }}
     </div>
-    <div class="col-2">
+    <div class="col-1">
+        {{ object.progress }}%
+    </div>
+    <div class="col-1">
         {% if object.num_rows %}
           {{ object.num_rows}}
         {% endif %}
