@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## main
 
+## [0.10.0] - 2025-09-01
+- [added] #66 Added progress to importer tasks
+
 ## [0.9.0] - 2025-04-09
 - [added] #65 Added update method set_extra_fields 
 
