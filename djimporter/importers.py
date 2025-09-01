@@ -4,6 +4,7 @@ Define the csv model base classe
 import csv
 import io
 import os
+import sys
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import DatabaseError, transaction
@@ -197,7 +198,12 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
         return new_fieldnames
 
-    def is_valid(self):
+    def is_valid(self, log=None):
+
+        print(log)
+        processed_rows = 0
+        total_lines = 0
+
         csv_file = self.file
         if isinstance(self.file, str):
             csv_file = self.open_file(self.file)
@@ -211,10 +217,24 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         if self.errors:
             return False
 
+        num_lines = len(self.csv_file) - 1 if total_lines == 0 else total_lines
+        # Status progress will be saved 10 times
+        block_lines = int(num_lines / 10) if num_lines >= 10 else 1
+
         for line_number, line in enumerate(self.csv_reader, start=2):
             # line is a dictionary with the fields of csv head as key
             # and values of the row as value of the dictionary
             self.process_line(line, line_number)
+
+            row = processed_rows + line_number - 1
+            progress = round(row * 100 / num_lines)
+            if log is not None and row % block_lines == 0:
+                log.progress = progress
+                log.num_rows = row
+                print('Saving')
+                log.save()
+            else:
+                print('{0}%'.format(progress))
 
         self.validate_in_file()
         if self.errors:
@@ -267,6 +287,11 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         except DatabaseError as e:
             self.add_error(1, "Error Database", {"Error Database": e.args})
 
+        # except Exception as e:
+        #     print(*sys.exc_info())
+        #     return
+
+
     def process_line(self, line, line_number):
         data = {
             'line': line,
@@ -280,7 +305,6 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
             'exclude_fields': self.exclude_fields
         }
         new_obj = ReadRow(**data)
-
         if new_obj.errors:
             self.errors.extend(new_obj.errors)
         if not new_obj.skip:
@@ -376,7 +400,9 @@ class ReadRow(ErrorMixin):
                 # the user.
                 self.add_error(self.line_number, csv_fieldname, error)
                 raise
-
+            # except Exception as e:
+            #     print(*sys.exc_info())
+            #     raise # reraises the exception
         self.data = data
 
     def create_model(self):
@@ -411,7 +437,6 @@ class ReadRow(ErrorMixin):
         if not self.object: return
         if hasattr(self.Meta, 'create_model') and not self.Meta.create_model:
             return
-
         self.object.save()
 
     def get_unique_together(self):

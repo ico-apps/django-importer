@@ -27,7 +27,7 @@ def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, he
             csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping, log=log,
             warning_mode=warning_mode,
         )
-        importer.is_valid()
+        importer.is_valid(log)
         importer.save()
 
         # update log with import result
@@ -36,16 +36,21 @@ def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, he
                 log.status = ImportLog.PARTIAL_WITH_ERRORS
             else:
                 log.status = ImportLog.FAILED
+
             log.errors = json.dumps(importer.errors)
         else:
             log.status = ImportLog.COMPLETED
             log.num_rows = len(importer.list_objs)
+
+        log.progress = 100
+
 
     except Exception as e:
         # Not controlled errors will be thrown to log
         errors = [{'line': 1, 'field': 'Internal Error', 'message': e.args}]
         log.status = ImportLog.FAILED
         log.errors = json.dumps(errors)
+        log.progress = 100
 
     log.save()
 
