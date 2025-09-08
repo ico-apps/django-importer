@@ -5,6 +5,7 @@ from django.views import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.list import ListView
+from urllib.parse import urlencode
 
 from . import get_importlog_model
 from .forms import CsvImportForm, UploadDataCsvGuessForm
@@ -136,7 +137,12 @@ class ImportFormView(FormView):
 
         self.task_log = self.create_import_task(form.files['upfile'], **kwargs)
 
-        return HttpResponseRedirect(self.get_success_url())
+        url = self.get_success_url()
+        goback_url = self.get_goback_url()
+        if goback_url:
+            query = urlencode({"back": goback_url})
+            url = f"{url}?{query}"
+        return HttpResponseRedirect(url)
 
     def create_import_task(self, csv_file, **kwargs):
         delimiter = kwargs.get('delimiter')
