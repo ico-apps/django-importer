@@ -65,8 +65,8 @@ class CsvModelMetaclass(type):
 
 class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
-    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None, 
-                 log=None, warning_mode=False):
+    def __init__(self, csvfile, context=None, delimiter=None, headers_mapping=None,
+                 log=None, warning_mode=False, default_values=None):
         self.file = csvfile
         self.context = context or {}
         self.Meta.context = context
@@ -82,6 +82,7 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
         self.fields = self.get_fields()
         self.extra_fields = getattr(self.Meta, 'extra_fields', [])
         self.headers_mapping = headers_mapping
+        self.default_values = default_values or {}
 
         self.mapping = self.get_mapping()
         self.encoding = getattr(self.Meta, 'encoding', None)
@@ -253,7 +254,8 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
         errors = {}
         for f in self.get_user_visible_fields():
-            if f not in self.csv_reader.fieldnames:
+            # Show error If column missing from file and it doesnt have a default
+            if f not in self.csv_reader.fieldnames and f not in self.default_values:
                 errors.update({f: _(self.get_dict_error()[f])})
 
         if errors:
@@ -302,7 +304,8 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
             'mapping': self.mapping,
             'validate_unique': self.validate_unique,
             'append_mode': self.append_mode,
-            'exclude_fields': self.exclude_fields
+            'exclude_fields': self.exclude_fields,
+            'default_values': self.default_values,
         }
         new_obj = ReadRow(**data)
         if new_obj.errors:
@@ -338,7 +341,7 @@ class ReadRow(ErrorMixin):
 
     def __init__(self, fields=None, mapping=None, meta=None, context=None,
                  line=None, line_number=None, validate_unique=True, append_mode=False,
-                 exclude_fields=None):
+                 exclude_fields=None, default_values=None):
         self.Meta = meta
         self.fields = fields
         self.mapping = mapping
@@ -348,6 +351,7 @@ class ReadRow(ErrorMixin):
         self.validate_unique = validate_unique
         self.append_mode = append_mode
         self.exclude_fields = exclude_fields
+        self.default_values = default_values or {}
 
         self.data = None
         self.object = None
@@ -390,6 +394,10 @@ class ReadRow(ErrorMixin):
 
                 if csv_fieldname in self.context:
                     data[model_fieldname] = self.context[csv_fieldname]
+                    continue
+
+                if csv_fieldname in self.default_values:
+                    data[model_fieldname] = self.default_values[csv_fieldname]
                     continue
 
                 cell = self.line[csv_fieldname]

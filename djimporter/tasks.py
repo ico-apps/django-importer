@@ -10,7 +10,8 @@ ImportLog = get_importlog_model()
 
 
 @background(schedule=0)
-def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, headers_mapping=None, warning_mode=False):
+def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, headers_mapping=None, warning_mode=False,
+                 default_values=None):
     """
     csv_model: should be string dotted_path e.g. 'djimporter.FooCsv'
     context: should be serializable
@@ -25,7 +26,7 @@ def run_importer(csv_model, csv_filepath, log_id, context={}, delimiter=None, he
     try:
         importer = importer_class(
             csv_filepath, context=context, delimiter=delimiter, headers_mapping=headers_mapping, log=log,
-            warning_mode=warning_mode,
+            warning_mode=warning_mode, default_values=default_values
         )
         importer.is_valid(log)
         importer.save()

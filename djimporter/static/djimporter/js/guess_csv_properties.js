@@ -76,8 +76,20 @@ $(function () {
                 $(select_item).append('<option value="' + header +'" ' + is_selected +">" + header + "</option>");
             });
             $(select_item).closest('.header_field').find('.first-row').html(first_row_values[label]);
+
+            toggle_default_input(select_item)
         });
     
+    }
+
+    function toggle_default_input(select_input) {
+        let default_input = $(select_input).closest(".header_field").find(".default_input");
+
+        if ($(select_input).val()) {
+            default_input.hide();
+        } else {
+            default_input.show();
+        }
     }
 
     function print_errors(errors){
@@ -117,7 +129,7 @@ $(function () {
 
         $.each($("#headers_mapping select"), function(key, select_item){
             header = $(select_item).val();
-            if (header == '') {
+            if ($(select_item).data("required") && header == '') {
                 show_error_popover($(select_item), 'This field is required.');
                 no_error = false;
             } else {
@@ -129,6 +141,18 @@ $(function () {
                 }
             }
         });
+
+        // Get the default values dict
+        $.each($("#headers_mapping .default_input:visible"), function(_, default_input){
+            let name = $(default_input).attr("name").replace("default_", "");
+            let value = $(default_input).val();
+            if (value) {
+                default_values[name] = value;
+            }
+        });
+
+        $("#default_values").val(JSON.stringify(default_values));
+
         return no_error;
     });
 
@@ -136,7 +160,9 @@ $(function () {
     $("#headers_mapping select").on("change", function(){
         $(this).popover('dispose');
         $(this).removeClass('is-invalid');
-        $(this).closest(".header_field").find(".first-row").html(first_row_values[$(this).val()]);
+        $(this).closest(".header_field").find(".first-row").html(first_row_values[$(this).val()] || '');
+
+        toggle_default_input(this)
     });
 
 

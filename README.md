@@ -50,6 +50,9 @@ You can create an advanced importer extending ImportFormGuessCsvView (from djimp
         <!-- Upload field -->
         {% bootstrap_field form.upfile layout='horizontal' %}
 
+        <!-- Hidden input to submit the defaults dict -->
+        <input type="hidden" name="default_values" id="default_values">
+
         <div class="row justify-content-md-center">
           <div class="col-11">
             <div class="card shadow-sm mb-3">
@@ -73,8 +76,9 @@ You can create an advanced importer extending ImportFormGuessCsvView (from djimp
               <div class="card-body">
                 <div class="row mb-2">
                   <div class="col-3"><strong>Headers</strong></div>
-                  <div class="col-6"><strong>File headers</strong></div>
+                  <div class="col-4"><strong>File headers</strong></div>
                   <div class="col-3"><strong>First row value</strong></div>
+                  <div class="col-2"><strong>Default</strong></div>
                 </div>
                 <div id="headers_mapping">
                   {% for field in form %}
@@ -83,10 +87,20 @@ You can create an advanced importer extending ImportFormGuessCsvView (from djimp
                         <div class="col-3">
                           {% bootstrap_label field.label label_for=field.id %}
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                           {% bootstrap_field field layout='horizontal' show_label=False %}
                         </div>
                         <div class="col-3 first-row"></div>
+                        <div class="col-2">
+                          {% if importer.Meta.default_values and importer.Meta.default_values|get_value:field.label %}
+                            <input type="text"
+                                  class="form-control default_input"
+                                  name="default_{{ field.label }}"
+                                  value="{{ importer.Meta.default_values|get_value:field.label }}"
+                                                     style="display:none;">
+
+                          {% endif %}
+                        </div>
                       </div>
                     {% endif %}
                   {% endfor %}

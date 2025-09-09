@@ -6,6 +6,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, FormView
 from django.views.generic.list import ListView
 from urllib.parse import urlencode
+import json
 
 from . import get_importlog_model
 from .forms import CsvImportForm, UploadDataCsvGuessForm
@@ -135,6 +136,11 @@ class ImportFormView(FormView):
 
         kwargs['warning_mode'] = form.cleaned_data.get('warning_mode', False)
 
+        default_values = json.loads(
+            self.request.POST.get("default_values") or "{}"
+        )
+        kwargs['default_values'] = default_values
+
         self.task_log = self.create_import_task(form.files['upfile'], **kwargs)
 
         url = self.get_success_url()
@@ -148,6 +154,7 @@ class ImportFormView(FormView):
         delimiter = kwargs.get('delimiter')
         headers_mapping = kwargs.get('headers_mapping')
         warning_mode = kwargs.get('warning_mode', False)
+        default_values = kwargs.get('default_values', None)
 
         importer_class = self.get_importer_class()
         task_log = self.create_import_log(csv_file)
@@ -164,7 +171,7 @@ class ImportFormView(FormView):
         context = self.get_importer_context()
         run_importer(dotted_path, csv_path, task_log.id, context=context,
                      delimiter=delimiter, headers_mapping=headers_mapping,
-                     warning_mode=warning_mode)
+                     warning_mode=warning_mode, default_values=default_values)
 
         return task_log
 
@@ -196,6 +203,9 @@ class ImportFormView(FormView):
     def get_importer_context(self):
         return {}
 
+    def get_goback_url(self):
+        return None
+
     def get_success_url(self):
         return reverse('djimporter:importlog-detail', kwargs={'pk': self.task_log.id})
 
@@ -208,11 +218,13 @@ class ImportFormGuessCsvView(ImportFormView):
 
         headers = self.importer_class.Meta.fields.copy()
         fields_help_text = getattr(self.importer_class.Meta, 'fields_help_text', {})
+        default_values = getattr(self.importer_class.Meta, 'default_values', {})
         if hasattr(self.importer_class.Meta, 'extra_fields'):
             headers.extend(self.importer_class.Meta.extra_fields)
 
         kwargs.update({
             'headers': headers,
             'fields_help_text': fields_help_text,
+            'default_values': default_values,
         })
         return kwargs
