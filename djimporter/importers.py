@@ -234,8 +234,6 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
                 log.num_rows = row
                 print('Saving')
                 log.save()
-            else:
-                print('{0}%'.format(progress))
 
         self.validate_in_file()
         if self.errors:
