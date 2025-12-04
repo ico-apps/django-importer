@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## main
 
+## [0.11.0] - 2025-12-04
+
 ## [0.10.0] - 2025-09-01
 - [added] #66 Added progress to importer tasks
 
