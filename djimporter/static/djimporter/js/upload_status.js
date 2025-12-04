@@ -10,6 +10,7 @@ function getData() {
         dataType: "json",
         success : function(data) {
             let status = data['status'];
+            $('#progress_col').html(data['progress']+'%')
             if (current_status != status)
                 location.reload();
             if (current_status == 'created'){

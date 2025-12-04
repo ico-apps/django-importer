@@ -40,7 +40,7 @@
     <div class="col-2">
         {{ object.status }}
     </div>
-    <div class="col-1">
+    <div class="col-1" id="progress_col">
         {{ object.progress }}%
     </div>
     <div class="col-1">
@@ -50,9 +50,17 @@
     </div>
   </div>
 
-  {% if object.list_errors %}
-  <a class="btn btn-secondary mb-3" href="{{ url_detail_extended }}">Go to extended detail</a>
+  {% if request.GET.back %}
+    <a href="{{ request.GET.back }}" class="btn btn-outline-secondary mb-3 mr-2">
+      Go Back
+    </a>
+  {% endif %}
 
+  {% if object.list_errors %}
+  <a class="btn btn-secondary mb-3"
+    href="{{ url_detail_extended }}{% if request.GET.back %}?back={{ request.GET.back|urlencode }}{% endif %}">
+    Go to extended detail
+  </a>
   <div class="row-fluid border border-dark rounded p-3 pt-5">
     <div class="col-12">
       <div>
