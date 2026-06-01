@@ -217,11 +217,11 @@ class ImportFormGuessCsvView(ImportFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        headers = self.importer_class.Meta.fields.copy()
-        fields_help_text = getattr(self.importer_class.Meta, 'fields_help_text', {})
-        default_values = getattr(self.importer_class.Meta, 'default_values', {})
-        if hasattr(self.importer_class.Meta, 'extra_fields'):
-            headers.extend(self.importer_class.Meta.extra_fields)
+        importer_class = self.get_importer_class()
+        importer = importer_class('', context = self.get_importer_context())
+        headers = importer.get_user_visible_fields()
+        fields_help_text = getattr(importer_class.Meta, 'fields_help_text', {})
+        default_values = getattr(importer_class.Meta, 'default_values', {})
 
         kwargs.update({
             'headers': headers,
