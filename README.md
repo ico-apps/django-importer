@@ -114,6 +114,46 @@ You can create an advanced importer extending ImportFormGuessCsvView (from djimp
       </form>
 
 ```
+### CsvModels definition
+
+You can define an importer extending CsvModel
+
+```
+class MeteoCsv(csvmodels.CsvModel):
+    class Meta:
+        delimiter = ';'
+        dbModel = Meteo
+        fields = ['type', 'value', 'tag', 'label', 'description']
+        extra_fields = ['zone_code']
+        fields_help_text = {
+            'type': "type of the meteo, e.g: rain, temperature"
+        }
+        default_values = {'description': 'Standard meteo'}
+        pre_save = ['set_zone']
+
+        @classmethod
+        def set_zone(cls, readrow):
+            obj = readrow.object
+            zone = ... get zone maybe using readrow.line['zone_code'] ...
+            obj.zone = zone
+```
+- fields: basic model fields that correspond directly to fields on the model.
+- extra_fields: fields that are not part of the model but should be included in the CSV, typically to calculate values or trigger additional logic in pre_save or post_save methods.
+- pre_save/post_save: class methods used to add dynamic logic, such as calculating field values, fetching additional data, or modifying objects before or after they are saved.
+- fields_help_text: use this to define help text for the fields you want to clarify.
+- default_values: when default values are defined, the corresponding fields no longer need to be present in the CSV. The default value will be applied to all imported objects.
+
+### Views
+
+```
+class ImportMeteoView(djimporter_views.ImportFormGuessCsvView):
+    importer_class = importers.MeteoCsv
+    template_name = "core/import_base_csv_guess.html"
+
+    def get_goback_url(self, *args, **kwargs):
+      return reverse_lazy('meteo_list')
+```
+- get_goback_url: optional function, if defined it adds a Go back button to that url.
 
 ## Installation
 Install the package using pip:
