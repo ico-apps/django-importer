@@ -412,7 +412,8 @@ class ReadRow(ErrorMixin):
         self.data = data
 
     def create_model(self):
-        if not self.data and len(self.fields)>0: return
+        if self.data is None or (self.data == {} and len(self.fields) > 0):
+            return
         self.object = self.Meta.dbModel(**self.data)
 
     def validate(self):
