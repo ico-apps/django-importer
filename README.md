@@ -11,6 +11,16 @@ If you want to use the default import log views (list and detail), you should in
 ## Custom import views
 You need to create the import view form template in your project extending your base template. You can create basic importers or advanced importers using field mapper and separator guesser.
 
+```
+class ImportMeteoView(djimporter_views.ImportFormGuessCsvView):
+    importer_class = importers.MeteoCsv
+    template_name = "core/import_base_csv_guess.html"
+
+    def get_goback_url(self, *args, **kwargs):
+      return reverse_lazy('meteo_list')
+```
+- get_goback_url: optional function, if defined it adds a Go back button to that url.
+
 ### Basic importer view
 
 ![simple_importer](https://github.com/ico-apps/django-importer/assets/2751315/fc310978-88ad-41ac-a45a-0992ec232845)

@@ -16,8 +16,9 @@ To install the django-importer, follow the steps described on the [installation]
 
 * [CsvModel](csvmodels.md)
   - [Simple Mapping](csvmodels.md#simple-mapping)
+  - [More options (Help text, default values)](csvmodels.md#more-options-help-text-default-values)
   - [Simple Mapping with ForeingKey](csvmodels.md#simple-mapping-with-a-foreingkey)
-  - [FoeringKey with more than one column](csvmodels.md#foreingkey-con-m%C3%A1s-de-una-columna)
+  - [ForeingKey with more than one column](csvmodels.md#foreingkey-con-m%C3%A1s-de-una-columna)
   - [Pre_save and Post_save](csvmodels.md#pre_save-and-post_save)
   - [One csv and two models](csvmodels.md#one-csv-two-models)
   - [Specials Fields](csvmodels.md#specials-fields)
