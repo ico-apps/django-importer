@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## main
 
+## [0.12.0] - 2026-07-16
+ [added] Allow empty objects creation (importer with non direct fields, it may have extra_fields, ...)
+ [fixed] Importer UI showing all fields, including the ones added dynamically
+ [fixed] Don't do bulk create if dbmodel has a non abstract parent. Create it line by line instead
+
 ## [0.11.0] - 2025-12-04
 
 ## [0.10.0] - 2025-09-01
