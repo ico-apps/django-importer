@@ -72,6 +72,22 @@ This indicates that the name that should appear in the file is the same as the o
 
 The next point to highlight is that we have not defined anything for **last_name**, it only appears in the fields list. If the csv column name and the model name is the same, we do not need to define anything else. We want to warn that if a model field is not defined in the **fields** variable, then it will take what appears in the **default** variable that we have described in our model.
 
+## More options (Help text, default values)
+
+- fields_help_text: use this to define help text for the fields you want to clarify.
+- default_values: when default values are defined, the corresponding fields no longer need to be present in the CSV. The default value will be applied to all imported objects.
+
+```
+class MeteoCsv(csvmodels.CsvModel):
+    class Meta:
+        delimiter = ';'
+        dbModel = Meteo
+        fields = ['type', 'value', 'tag', 'label', 'description']
+        fields_help_text = {
+            'type': "type of the meteo, e.g: rain, temperature"
+        }
+        default_values = {'description': 'Standard meteo'}
+```
 
 ## Simple mapping with a ForeingKey
 A simple mapping with a ForeingKey requires that the object to which we are going to relate using the ForeingKey already exists.

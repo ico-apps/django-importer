@@ -276,7 +276,11 @@ class CsvModel(ErrorMixin, metaclass=CsvModelMetaclass):
 
         try:
             with transaction.atomic():
-                self.dbModel.objects.bulk_create(lines, batch_size=20)
+                if self.dbModel._meta.parents:
+                    for line in lines:
+                        line.save()
+                else:
+                    self.dbModel.objects.bulk_create(lines, batch_size=20)
 
                 if not self.post_save: return
                 for row in self.list_objs:
@@ -412,7 +416,8 @@ class ReadRow(ErrorMixin):
         self.data = data
 
     def create_model(self):
-        if not self.data: return
+        if self.data is None or (self.data == {} and len(self.fields) > 0):
+            return
         self.object = self.Meta.dbModel(**self.data)
 
     def validate(self):
